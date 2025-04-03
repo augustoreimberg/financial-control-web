@@ -57,7 +57,7 @@ export default function LoginForm() {
 
       localStorage.setItem('user', JSON.stringify(data.user))
 
-      router.push('/dashboard')
+      router.push('/profile')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Falha ao fazer login')
     } finally {
@@ -98,7 +98,7 @@ export default function LoginForm() {
               <Input
                 id="email"
                 type="email"
-                placeholder="exemplo@email.com"
+                placeholder="exemplo@quarkinvestimentos.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

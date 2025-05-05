@@ -1,30 +1,25 @@
-import type { Metadata } from "next";
-import { Inter } from 'next/font/google';
-import "./globals.css";
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Quark Financial Control",
-  description: "Manage your finances with precision and ease",
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
+  title: "QWallet",
+  description: "Carteira da Quark",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased`}>
-        {children}
+    <html lang="pt-BR">
+      <body className={inter.className}>
+        <main className="min-h-screen bg-gradient-to-br from-zinc-950 to-zinc-900 flex flex-col">{children}</main>
       </body>
     </html>
-  );
+  )
 }

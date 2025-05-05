@@ -1,12 +1,29 @@
 "use client"
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useMemo, useState } from "react"
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Clock, AlertTriangle, MoreHorizontal } from "lucide-react"
-import { format } from "date-fns"
+import {
+  CheckCircle, Clock, AlertTriangle, MoreHorizontal
+} from "lucide-react"
+import {
+  format, parseISO, isWithinInterval,
+  startOfMonth, endOfMonth, subMonths, addMonths
+} from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  DropdownMenu, DropdownMenuContent,
+  DropdownMenuItem, DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle
+} from "@/components/ui/dialog"
+import {
+  Tabs, TabsList, TabsTrigger, TabsContent
+} from "@/components/ui/tabs"
 import type { Payment } from "@/actions/get-payments"
 
 interface PaymentTableProps {
@@ -15,12 +32,11 @@ interface PaymentTableProps {
 }
 
 export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value)
-  }
+  const [selectedMonth, setSelectedMonth] = useState(new Date())
+  const [selectedPolicy, setSelectedPolicy] = useState<string | null>(null)
+
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value)
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "—"
@@ -63,8 +79,46 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
     }
   }
 
+  const filteredPayments = useMemo(() => {
+    return payments.filter(p => {
+      const due = parseISO(p.dueDate)
+      return isWithinInterval(due, {
+        start: startOfMonth(selectedMonth),
+        end: endOfMonth(selectedMonth)
+      })
+    })
+  }, [payments, selectedMonth])
+
+  const paymentsByPolicy = useMemo(() => {
+    return payments.filter(p => p.policyId === selectedPolicy)
+  }, [payments, selectedPolicy])
+
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto space-y-4">
+      {/* Navegação por mês */}
+      <div className="flex items-center justify-between mb-4">
+        <Button
+          variant="outline"
+          className="text-sm bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+          onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
+        >
+          ← Mês Anterior
+        </Button>
+
+        <span className="text-base font-semibold text-white">
+          {format(selectedMonth, "MMMM yyyy", { locale: ptBR })}
+        </span>
+
+        <Button
+          variant="outline"
+          className="text-sm bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+          onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
+        >
+          Próximo Mês →
+        </Button>
+      </div>
+
+      {/* Tabela de pagamentos */}
       <Table>
         <TableHeader>
           <TableRow className="border-zinc-800 hover:bg-zinc-800/50">
@@ -79,16 +133,20 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {payments.map((payment) => (
-            <TableRow key={payment.id} className="border-zinc-800 hover:bg-zinc-800/50">
+          {filteredPayments.map((payment) => (
+            <TableRow
+              key={payment.id}
+              className="cursor-pointer border-zinc-800 hover:bg-zinc-800/50"
+              onClick={() => setSelectedPolicy(payment.policyId)}
+            >
               <TableCell className="text-white font-medium">{payment.policy?.name || "—"}</TableCell>
-              <TableCell className="text-zinc-300">{payment.policy?.client?.name || "—"}</TableCell>
-              <TableCell className="text-zinc-300">{formatDate(payment.parentId)}</TableCell>
+              <TableCell className="text-zinc-300">{payment.accountName}</TableCell>
+              <TableCell className="text-zinc-300">{payment.productName}</TableCell>
               <TableCell className="text-zinc-300">{payment.plot}</TableCell>
               <TableCell className="text-zinc-300">{formatCurrency(payment.price)}</TableCell>
               <TableCell className="text-zinc-300">{formatDate(payment.dueDate)}</TableCell>
               <TableCell>{getStatusBadge(payment.paymentStatus)}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -129,6 +187,55 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
           ))}
         </TableBody>
       </Table>
+
+      {/* Modal com abas */}
+      <Dialog open={!!selectedPolicy} onOpenChange={() => setSelectedPolicy(null)}>
+        <DialogContent className="bg-zinc-900 text-white max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Apólice</DialogTitle>
+          </DialogHeader>
+
+          <Tabs defaultValue="info" className="w-full mt-4">
+            <TabsList className="bg-zinc-900 border border-zinc-700 mb-4 rounded-md p-1">
+              <TabsTrigger
+                value="info"
+                className="text-sm data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-300 px-4 py-1 rounded-md"
+              >
+                Informações
+              </TabsTrigger>
+              <TabsTrigger
+                value="payments"
+                className="text-sm data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-300 px-4 py-1 rounded-md"
+              >
+                Pagamentos
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info">
+              <div className="text-sm text-zinc-400">
+                <p className="italic">Nenhuma informação disponível ainda.</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="payments">
+              <div className="space-y-3">
+                {paymentsByPolicy.map(p => (
+                  <div key={p.id} className="flex justify-between border-b border-zinc-700 py-2">
+                    <div>
+                      <p className="font-medium">{p.plot}</p>
+                      <p className="text-sm text-zinc-400">{formatDate(p.dueDate)}</p>
+                    </div>
+                    <div className="text-right">
+                      {getStatusBadge(p.paymentStatus)}
+                      <p className="text-sm">{formatCurrency(p.price)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

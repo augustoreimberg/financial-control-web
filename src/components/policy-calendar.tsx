@@ -118,7 +118,7 @@ export function PolicyCalendar({ policies, onSelectPolicy, payments = [], onSele
                       className="p-2 rounded-md bg-zinc-800/70 border border-zinc-700 hover:border-red-800 cursor-pointer transition-colors"
                       onClick={() => onSelectPayment && onSelectPayment(payment)}
                     >
-                      <div className="text-sm font-medium text-white">{payment.policy?.name || "—"}</div>
+                      <div className="text-sm font-medium text-white">{payment.policyId || "—"}</div>
                       <div className="text-xs text-zinc-400">{payment.plot}</div>
                       <div className="flex justify-between items-center mt-1">
                         <span className="text-xs">{getStatusBadge(payment.paymentStatus)}</span>

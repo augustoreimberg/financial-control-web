@@ -207,9 +207,9 @@ export default function PoliciesPage() {
 
             <TabsContent value="list">
               <Card className="border-zinc-800 bg-zinc-900/90 backdrop-blur-xl shadow-xl">
-                <CardHeader className="pb-0">
+                {/* <CardHeader className="pb-0">
                   <CardTitle className="text-lg text-white">Lista de Pagamentos</CardTitle>
-                </CardHeader>
+                </CardHeader> */}
                 <CardContent>
                   {error && (
                     <Alert variant="destructive" className="mb-4 bg-red-950/50 border-red-900 text-red-200">

@@ -6,7 +6,9 @@ export type Payment = {
   id: string
   policyId: string
   accountId: string
+  accountName: string
   productId: string
+  productName: string
   plot: string
   price: number
   paymentStatus: "PAID" | "PENDING" | "DEFEATED"

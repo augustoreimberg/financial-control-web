@@ -5,6 +5,7 @@ import { cookies } from "next/headers"
 export type Payment = {
   id: string
   policyId: string
+  policyNumber: string
   accountId: string
   accountName: string
   productId: string

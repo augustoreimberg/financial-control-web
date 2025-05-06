@@ -70,10 +70,9 @@ export default function LoginForm() {
     <Card className="border-zinc-800 bg-zinc-900/90 backdrop-blur-xl shadow-xl w-full max-w-md">
       <CardHeader className="text-center">
         <div className="flex justify-center">
-          <img src="/logo.png" alt="QWALLET Logo" className="h-20" />
+          <img src="/logo.svg" alt="QWALLET Logo" className="h-20" />
         </div>
-        <CardTitle className="text-xl text-white">Entrar</CardTitle>
-        <CardDescription className="text-zinc-400">Preencha seu email e senha</CardDescription>
+        <CardDescription className="text-zinc-400">Acesse o QWallet com seu email e senha</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={handleSubmit} className="space-y-5">

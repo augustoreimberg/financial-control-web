@@ -139,7 +139,7 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
               className="cursor-pointer border-zinc-800 hover:bg-zinc-800/50"
               onClick={() => setSelectedPolicy(payment.policyId)}
             >
-              <TableCell className="text-white font-medium">{payment.policy?.name || "—"}</TableCell>
+              <TableCell className="text-white font-medium">{payment.policyNumber}</TableCell>
               <TableCell className="text-zinc-300">{payment.accountName}</TableCell>
               <TableCell className="text-zinc-300">{payment.productName}</TableCell>
               <TableCell className="text-zinc-300">{payment.plot}</TableCell>

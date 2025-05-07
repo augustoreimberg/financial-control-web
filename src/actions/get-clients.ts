@@ -21,21 +21,16 @@ export type ClientsResponse = {
 async function getAuthToken(clientToken?: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get("access_token")?.value
-
-  // Usar o token do servidor ou o token do cliente
   const finalToken = token || clientToken
 
   if (!finalToken) {
     console.error("ERRO: Nenhum token de autenticação encontrado!")
     throw new Error("Não autenticado - token não encontrado")
   }
-
-  // Garantir que o token não tenha o prefixo "Bearer " duplicado
   const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
   return cleanToken
 }
 
-// Modificar a função getClients para lidar com a estrutura específica da API
 export const getClients = async (
   {
     id,
@@ -66,7 +61,6 @@ export const getClients = async (
     if (userId) queryParams.append("userId", userId)
 
     const queryString = queryParams.toString()
-    // Modificar a URL para usar /accounts em vez de /clients
     const url = `${process.env.API_URL}/accounts${queryString ? `?${queryString}` : ""}`
 
     console.log(`Buscando clientes: ${url}`)
@@ -91,7 +85,6 @@ export const getClients = async (
     const data = await response.json()
     console.log("Dados recebidos da API:", data)
 
-    // Transformar a estrutura específica da API em um formato mais fácil de usar
     if (data.accounts && Array.isArray(data.accounts)) {
       const transformedClients = data.accounts.map((account: any) => ({
         id: account._id.value,
@@ -111,7 +104,6 @@ export const getClients = async (
       }
     }
 
-    // Caso não consiga identificar o formato, retorna um array vazio
     console.log("Formato de resposta não reconhecido")
     return {
       data: [],

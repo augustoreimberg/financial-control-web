@@ -38,7 +38,6 @@ export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
         throw new Error("Token de autenticação não encontrado")
       }
 
-      // Buscar pagamentos atrasados e próximos vencimentos em paralelo
       const [overdueResult, upcomingResult] = await Promise.all([getOverduePayments(token), getUpcomingPayments(token)])
 
       if (overdueResult.error) {
@@ -59,12 +58,9 @@ export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
     }
   }
 
-  // Buscar notificações quando o componente for montado e quando o painel for aberto
   useEffect(() => {
-    // Buscar notificações iniciais mesmo com o painel fechado
     fetchNotifications()
 
-    // Configurar um intervalo para atualizar as notificações a cada 5 minutos
     const intervalId = setInterval(
       () => {
         fetchNotifications()
@@ -75,7 +71,6 @@ export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
     return () => clearInterval(intervalId)
   }, [])
 
-  // Atualizar novamente quando o painel for aberto
   useEffect(() => {
     if (isOpen) {
       fetchNotifications()
@@ -105,6 +100,7 @@ export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
   }
 
   const renderPaymentItem = (payment: Payment, isOverdue: boolean) => (
+    console.log("aaaaaa",payment),
     <div
       key={payment.id}
       className="p-3 rounded-md bg-zinc-800/70 border border-zinc-700 hover:border-red-800 cursor-pointer transition-colors mb-2"
@@ -112,7 +108,7 @@ export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
     >
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-sm font-medium text-white">{payment.policy?.name || "Apólice"}</div>
+          <div className="text-sm font-medium text-white">{}</div>
           <div className="text-xs text-zinc-400">Parcela: {payment.plot}</div>
           <div className="text-xs text-zinc-400">Vencimento: {formatDate(payment.dueDate)}</div>
         </div>

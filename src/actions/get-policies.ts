@@ -34,7 +34,6 @@ async function getAuthToken(clientToken?: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get("access_token")?.value
 
-  // Usar o token do servidor ou o token do cliente
   const finalToken = token || clientToken
 
   if (!finalToken) {
@@ -42,7 +41,7 @@ async function getAuthToken(clientToken?: string) {
     throw new Error("Não autenticado - token não encontrado")
   }
 
-  // Garantir que o token não tenha o prefixo "Bearer " duplicado
+
   const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
   return cleanToken
 }

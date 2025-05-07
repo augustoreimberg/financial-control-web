@@ -42,7 +42,7 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
     if (!dateString) return "—"
     try {
       return format(new Date(dateString), "dd/MM/yyyy", { locale: ptBR })
-    } catch (error) {
+    } catch {
       return "Data inválida"
     }
   }
@@ -52,22 +52,19 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
       case "PAID":
         return (
           <Badge className="bg-green-600/20 text-green-500 hover:bg-green-600/30 border-green-800/30">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Pago
+            <CheckCircle className="h-3 w-3 mr-1" /> Pago
           </Badge>
         )
       case "PENDING":
         return (
           <Badge className="bg-yellow-600/20 text-yellow-500 hover:bg-yellow-600/30 border-yellow-800/30">
-            <Clock className="h-3 w-3 mr-1" />
-            Pendente
+            <Clock className="h-3 w-3 mr-1" /> Pendente
           </Badge>
         )
       case "DEFEATED":
         return (
           <Badge className="bg-red-600/20 text-red-500 hover:bg-red-600/30 border-red-800/30">
-            <AlertTriangle className="h-3 w-3 mr-1" />
-            Vencido
+            <AlertTriangle className="h-3 w-3 mr-1" /> Vencido
           </Badge>
         )
       default:
@@ -79,23 +76,24 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
     }
   }
 
-  const filteredPayments = useMemo(() => {
-    return payments.filter(p => {
+  const filteredPayments = useMemo(
+    () => payments.filter(p => {
       const due = parseISO(p.dueDate)
       return isWithinInterval(due, {
         start: startOfMonth(selectedMonth),
         end: endOfMonth(selectedMonth)
       })
-    })
-  }, [payments, selectedMonth])
+    }),
+    [payments, selectedMonth]
+  )
 
-  const paymentsByPolicy = useMemo(() => {
-    return payments.filter(p => p.policyId === selectedPolicy)
-  }, [payments, selectedPolicy])
+  const paymentsByPolicy = useMemo(
+    () => payments.filter(p => p.policyId === selectedPolicy),
+    [payments, selectedPolicy]
+  )
 
   return (
     <div className="overflow-x-auto space-y-4">
-      {/* Navegação por mês */}
       <div className="flex items-center justify-between mb-4">
         <Button
           variant="outline"
@@ -118,7 +116,6 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
         </Button>
       </div>
 
-      {/* Tabela de pagamentos */}
       <Table>
         <TableHeader>
           <TableRow className="border-zinc-800 hover:bg-zinc-800/50">
@@ -133,7 +130,7 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredPayments.map((payment) => (
+          {filteredPayments.map(payment => (
             <TableRow
               key={payment.id}
               className="cursor-pointer border-zinc-800 hover:bg-zinc-800/50"
@@ -146,7 +143,7 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
               <TableCell className="text-zinc-300">{formatCurrency(payment.price)}</TableCell>
               <TableCell className="text-zinc-300">{formatDate(payment.dueDate)}</TableCell>
               <TableCell>{getStatusBadge(payment.paymentStatus)}</TableCell>
-              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+              <TableCell className="text-right" onClick={e => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -188,7 +185,6 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
         </TableBody>
       </Table>
 
-      {/* Modal com abas */}
       <Dialog open={!!selectedPolicy} onOpenChange={() => setSelectedPolicy(null)}>
         <DialogContent className="bg-zinc-900 text-white max-w-xl">
           <DialogHeader>
@@ -218,9 +214,12 @@ export function PaymentTable({ payments, onUpdateStatus }: PaymentTableProps) {
             </TabsContent>
 
             <TabsContent value="payments">
-              <div className="space-y-3">
+              <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2">
                 {paymentsByPolicy.map(p => (
-                  <div key={p.id} className="flex justify-between border-b border-zinc-700 py-2">
+                  <div
+                    key={p.id}
+                    className="flex justify-between border-b border-zinc-700 py-2"
+                  >
                     <div>
                       <p className="font-medium">{p.plot}</p>
                       <p className="text-sm text-zinc-400">{formatDate(p.dueDate)}</p>

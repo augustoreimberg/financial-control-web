@@ -11,8 +11,6 @@ export type ProductResponse = {
 async function getAuthToken(clientToken?: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get("access_token")?.value
-
-  // Usar o token do servidor ou o token do cliente
   const finalToken = token || clientToken
 
   if (!finalToken) {
@@ -20,7 +18,6 @@ async function getAuthToken(clientToken?: string) {
     throw new Error("Não autenticado - token não encontrado")
   }
 
-  // Garantir que o token não tenha o prefixo "Bearer " duplicado
   const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
   return cleanToken
 }
@@ -48,7 +45,6 @@ export const updateProduct = async (formData: FormData, clientToken?: string): P
     console.log(`Atualizando produto: ${id} - ${name}`)
     console.log("URL da API:", `${process.env.API_URL}/products/${id}`)
 
-    // Enviar apenas o nome no corpo da requisição, já que o ID está na URL
     const response = await fetch(`${process.env.API_URL}/products/${id}`, {
       method: "PUT",
       headers: {
@@ -70,7 +66,6 @@ export const updateProduct = async (formData: FormData, clientToken?: string): P
     const data = await response.json()
     console.log("Produto atualizado com sucesso:", data.product?.id || id)
 
-    // Se a API não retornar o produto atualizado, construímos um objeto com os dados que temos
     const updatedProduct = data.product || {
       id,
       name,

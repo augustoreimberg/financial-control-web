@@ -11,7 +11,7 @@ export type Policy = {
   validity: string
   frequency: "MONTHLY" | "ANNUAL"
   monthlyPremium: number
-  annualPremium: number
+  annualPremium?: number
   paymentMethod: "CREDIT" | "DEBIT" | "BILL"
   dueDate: string
   createdAt: string
@@ -26,8 +26,6 @@ export type PolicyResponse = {
 async function getAuthToken(clientToken?: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get("access_token")?.value
-
-  // Usar o token do servidor ou o token do cliente
   const finalToken = token || clientToken
 
   if (!finalToken) {
@@ -35,9 +33,7 @@ async function getAuthToken(clientToken?: string) {
     throw new Error("Não autenticado - token não encontrado")
   }
 
-  // Garantir que o token não tenha o prefixo "Bearer " duplicado
-  const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
-  return cleanToken
+  return finalToken.replace(/^Bearer\s+/i, "")
 }
 
 export const createPolicy = async (formData: FormData, clientToken?: string): Promise<PolicyResponse> => {
@@ -45,38 +41,48 @@ export const createPolicy = async (formData: FormData, clientToken?: string): Pr
     const token = await getAuthToken(clientToken)
 
     const name = formData.get("name") as string
-    const clientId = formData.get("clientId") as string
+    const accountId = formData.get("clientId") as string // Renomeado no envio
     const productId = formData.get("productId") as string
     const policyNumber = formData.get("policyNumber") as string
     const validity = formData.get("validity") as string
     const frequency = formData.get("frequency") as "MONTHLY" | "ANNUAL"
-    const monthlyPremium = Number.parseFloat(formData.get("monthlyPremium") as string)
-    const annualPremium = Number.parseFloat(formData.get("annualPremium") as string)
+    const monthlyPremium = parseFloat(formData.get("monthlyPremium") as string)
+    const annualPremiumRaw = formData.get("annualPremium") as string
     const paymentMethod = formData.get("paymentMethod") as "CREDIT" | "DEBIT" | "BILL"
     const dueDate = formData.get("dueDate") as string
 
     if (!name || name.trim().length < 2) {
-      return {
-        data: null,
-        error: "Nome da apólice deve ter pelo menos 2 caracteres",
-      }
+      return { data: null, error: "Nome da apólice deve ter pelo menos 2 caracteres" }
     }
 
-    if (!clientId) {
-      return {
-        data: null,
-        error: "Cliente é obrigatório",
-      }
+    if (!accountId) {
+      return { data: null, error: "Cliente é obrigatório" }
     }
 
     if (!productId) {
-      return {
-        data: null,
-        error: "Produto é obrigatório",
-      }
+      return { data: null, error: "Produto é obrigatório" }
     }
 
     console.log(`Criando apólice: ${name}`)
+
+    const body: any = {
+      name,
+      accountId,
+      productId,
+      policyNumber,
+      validity,
+      frequency,
+      monthlyPremium,
+      paymentMethod,
+      dueDate,
+    }
+
+    if (annualPremiumRaw) {
+      const annualPremium = parseFloat(annualPremiumRaw)
+      if (!isNaN(annualPremium)) {
+        body.annualPremium = annualPremium
+      }
+    }
 
     const response = await fetch(`${process.env.API_URL}/policies`, {
       method: "POST",
@@ -85,18 +91,7 @@ export const createPolicy = async (formData: FormData, clientToken?: string): Pr
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
       },
-      body: JSON.stringify({
-        name,
-        clientId,
-        productId,
-        policyNumber,
-        validity,
-        frequency,
-        monthlyPremium,
-        annualPremium,
-        paymentMethod,
-        dueDate,
-      }),
+      body: JSON.stringify(body),
     })
 
     console.log("Status da resposta:", response.status)
@@ -116,15 +111,9 @@ export const createPolicy = async (formData: FormData, clientToken?: string): Pr
     }
   } catch (error) {
     console.error("Erro ao criar apólice:", error)
-    if (error instanceof Error) {
-      return {
-        data: null,
-        error: error.message,
-      }
-    }
     return {
       data: null,
-      error: "Erro desconhecido ao criar apólice",
+      error: error instanceof Error ? error.message : "Erro desconhecido ao criar apólice",
     }
   }
 }

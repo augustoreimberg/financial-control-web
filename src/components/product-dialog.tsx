@@ -30,7 +30,6 @@ interface ProductDialogProps {
 export function ProductDialog({ open, onOpenChange, product, onSuccess, clientToken }: ProductDialogProps) {
   const [name, setName] = useState("")
 
-  // Atualizar o nome quando o produto mudar ou quando o diálogo abrir
   useEffect(() => {
     if (open) {
       setName(product?.name || "")

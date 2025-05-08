@@ -1,17 +1,19 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { format, addMonths, subMonths } from "date-fns"
-import { ptBR } from "date-fns/locale"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { format, addMonths, subMonths } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
 interface PaymentMonthSelectorProps {
   onMonthChange: (month: number, year: number) => void
 }
 
-export function PaymentMonthSelector({ onMonthChange }: PaymentMonthSelectorProps) {
+export function PaymentMonthSelector({
+  onMonthChange,
+}: PaymentMonthSelectorProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
 
   const nextMonth = () => {
@@ -26,7 +28,6 @@ export function PaymentMonthSelector({ onMonthChange }: PaymentMonthSelectorProp
     onMonthChange(newDate.getMonth() + 1, newDate.getFullYear())
   }
 
-  // Chamar onMonthChange quando o componente for montado
   useState(() => {
     onMonthChange(currentDate.getMonth() + 1, currentDate.getFullYear())
   })
@@ -44,7 +45,7 @@ export function PaymentMonthSelector({ onMonthChange }: PaymentMonthSelectorProp
         </Button>
 
         <h2 className="text-xl font-semibold text-white capitalize">
-          {format(currentDate, "MMMM yyyy", { locale: ptBR })}
+          {format(currentDate, 'MMMM yyyy', { locale: ptBR })}
         </h2>
 
         <Button

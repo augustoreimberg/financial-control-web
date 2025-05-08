@@ -46,7 +46,7 @@ export const updatePaymentStatus = async (
     }
 
     console.log(`Atualizando status do pagamento: ${id} - ${paymentStatus}`)
-    console.log("URL da API:", `${process.env.API_URL}/payments/${id}/status`)
+    console.log("URL da API:", `${process.env.API_URL}/payments/${id}`)
 
     const requestBody: { paymentStatus: string; paymentDate?: string } = {
       paymentStatus,
@@ -56,7 +56,7 @@ export const updatePaymentStatus = async (
       requestBody.paymentDate = paymentDate
     }
 
-    const response = await fetch(`${process.env.API_URL}/payments/${id}/status`, {
+    const response = await fetch(`${process.env.API_URL}/payments/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

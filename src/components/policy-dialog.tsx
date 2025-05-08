@@ -65,7 +65,6 @@ export function PolicyDialog({
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Atualizar o formulário quando a apólice mudar ou quando o diálogo abrir
   useEffect(() => {
     if (open && policy) {
       setFormState({

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Package, Menu, X, LogOut, PieChartIcon, Shield } from "lucide-react"
+import { Menu, X, LogOut, Home, Shield } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { logout } from "@/actions/auth"
@@ -53,9 +53,8 @@ export default function Sidebar() {
   }
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: PieChartIcon },
+    { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Apólices", href: "/policies", icon: Shield },
-    { name: "Produtos", href: "/products", icon: Package },
   ]
 
   return (
@@ -73,7 +72,7 @@ export default function Sidebar() {
 
       <div className="hidden lg:flex flex-col h-screen w-48 bg-zinc-900/90 backdrop-blur-xl border-r border-zinc-800 fixed">
         <div className="p-3 border-b border-zinc-800 flex justify-center">
-          <img src="/logo.svg" alt="QWALLET Logo" className="h-7" />
+          <img src="/logo.svg" alt="QWALLET Logo" className="h-9" />
         </div>
 
         <nav className="flex-1 p-2 space-y-1 overflow-y-auto">

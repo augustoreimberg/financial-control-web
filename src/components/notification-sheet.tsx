@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Bell, AlertTriangle, Clock, Loader2, AlertCircle } from "lucide-react"
+import { Bell, AlertTriangle, Clock, Loader2, AlertCircle } from 'lucide-react'
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { getOverduePayments } from "@/actions/get-overdue-payments"
@@ -15,10 +15,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import Cookies from "js-cookie"
 
 interface NotificationSheetProps {
-  onSelectPayment?: (payment: Payment) => void
+  count?: number
+  onSelectPolicy?: (policyId: string) => void
 }
 
-export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
+export function NotificationSheet({ count = 0, onSelectPolicy }: NotificationSheetProps) {
   const [overduePayments, setOverduePayments] = useState<Payment[]>([])
   const [upcomingPayments, setUpcomingPayments] = useState<Payment[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -92,23 +93,22 @@ export function NotificationSheet({ onSelectPayment }: NotificationSheetProps) {
     }
   }
 
-  const handlePaymentClick = (payment: Payment) => {
-    if (onSelectPayment) {
-      onSelectPayment(payment)
+  const handlePolicyClick = (payment: Payment) => {
+    if (onSelectPolicy && payment.policyId) {
+      onSelectPolicy(payment.policyId)
+      setIsOpen(false)
     }
-    setIsOpen(false)
   }
 
   const renderPaymentItem = (payment: Payment, isOverdue: boolean) => (
-    console.log("aaaaaa",payment),
     <div
       key={payment.id}
       className="p-3 rounded-md bg-zinc-800/70 border border-zinc-700 hover:border-red-800 cursor-pointer transition-colors mb-2"
-      onClick={() => handlePaymentClick(payment)}
+      onClick={() => handlePolicyClick(payment)}
     >
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-sm font-medium text-white">{}</div>
+          <div className="text-sm font-medium text-white">{payment.policyNumber}</div>
           <div className="text-xs text-zinc-400">Parcela: {payment.plot}</div>
           <div className="text-xs text-zinc-400">Vencimento: {formatDate(payment.dueDate)}</div>
         </div>

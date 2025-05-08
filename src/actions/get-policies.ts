@@ -100,7 +100,6 @@ export const getPolicies = async (
     const data = await response.json()
     console.log("Dados recebidos da API:", data)
 
-    // Verificar se a resposta é um array ou um objeto com propriedade policies
     if (Array.isArray(data)) {
       console.log("Apólices recebidas (array):", data.length)
       return {
@@ -114,14 +113,12 @@ export const getPolicies = async (
         error: null,
       }
     } else if (data.policy) {
-      // A API retornou uma única apólice
       return {
         data: [data.policy],
         error: null,
       }
     }
 
-    // Caso não consiga identificar o formato, retorna os dados como estão
     console.log("Formato de resposta não reconhecido, tentando usar dados como estão")
     return {
       data: Array.isArray(data) ? data : [],

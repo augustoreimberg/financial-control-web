@@ -12,9 +12,9 @@ import { getPayments, type Payment } from '@/actions/get-payments'
 import { getClients, type Client } from '@/actions/get-clients'
 import { getProducts, type Product } from '@/actions/get-product'
 import {
-  PolicyFilters,
-  type PolicyFilters as PolicyFiltersType,
-} from '@/components/policy-filters'
+  PaymentsFilters,
+  type PaymentsFilters as PaymentsFiltersType,
+} from '@/components/payments-filters'
 import { PaymentTable } from '@/components/payment-table'
 import { PolicyCalendar } from '@/components/policy-calendar'
 import { PaymentStatusDialog } from '@/components/payment-status-dialog'
@@ -38,6 +38,7 @@ export default function PoliciesPage() {
     'PAID'
   )
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [selectedPolicy, setSelectedPolicy] = useState<string | null>(null)
 
   useEffect(() => {
     const checkAuth = () => {
@@ -127,25 +128,85 @@ export default function PoliciesPage() {
     fetchData()
   }, [router])
 
-  const handleFilter = async (filters: PolicyFiltersType) => {
+  const handleFilter = async (filters: PaymentsFiltersType) => {
     setIsLoading(true)
     setError(null)
 
     try {
       const paymentFilters: any = {}
-      if (filters.clientId) paymentFilters.clientId = filters.clientId
-      if (filters.productId) paymentFilters.productId = filters.productId
-      if (filters.month) paymentFilters.month = filters.month
-      if (filters.year) paymentFilters.year = filters.year
-      if (filters.dueDate) paymentFilters.dueDate = filters.dueDate
 
+      if (filters.clientId) {
+        paymentFilters.accountId = filters.clientId
+      }
+
+      if (filters.productId) {
+        paymentFilters.productId = filters.productId
+      }
+
+      if (filters.status) {
+        paymentFilters.status = filters.status
+      }
+
+      if (filters.month) {
+        paymentFilters.month = filters.month
+      }
+
+      if (filters.year) {
+        paymentFilters.year = filters.year
+      }
+
+      console.log('Filtros aplicados:', paymentFilters)
       const result = await getPayments(paymentFilters, clientToken)
 
       if (result.error) {
         throw new Error(result.error)
       }
 
-      setPayments(result.data || [])
+      let filteredData = result.data || []
+
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase()
+        filteredData = filteredData.filter(
+          (payment) =>
+            payment.policyNumber?.toLowerCase().includes(searchLower) ||
+            payment.accountName?.toLowerCase().includes(searchLower) ||
+            payment.productName?.toLowerCase().includes(searchLower)
+        )
+      }
+
+      if (filters.dueDate) {
+        const filterDate = new Date(filters.dueDate)
+        filteredData = filteredData.filter((payment) => {
+          const dueDate = new Date(payment.dueDate)
+          return (
+            dueDate.getDate() === filterDate.getDate() &&
+            dueDate.getMonth() === filterDate.getMonth() &&
+            dueDate.getFullYear() === filterDate.getFullYear()
+          )
+        })
+      }
+
+      const enrichedPayments = filteredData.map((payment) => {
+        const policyName = `Apólice ${payment.policyId.substring(0, 8)}`
+
+        const randomClient =
+          clients.length > 0
+            ? clients[Math.floor(Math.random() * clients.length)]
+            : null
+
+        return {
+          ...payment,
+          policy: {
+            name: policyName,
+            clientId: randomClient?.id || '',
+            client: {
+              name: randomClient?.name || 'Cliente',
+            },
+          },
+        }
+      })
+
+      setPayments(enrichedPayments)
     } catch (error) {
       console.error('Erro ao filtrar pagamentos:', error)
       setError(
@@ -189,6 +250,11 @@ export default function PoliciesPage() {
     setIsStatusDialogOpen(true)
   }
 
+  const handleSelectPolicy = (policyId: string) => {
+    setSelectedPolicy(policyId)
+    setActiveView('list')
+  }
+
   return (
     <>
       <Sidebar />
@@ -206,19 +272,19 @@ export default function PoliciesPage() {
               >
                 Nova Apólice
               </Button>
-              <NotificationSheet count={0} />
+              <NotificationSheet
+                count={0}
+                onSelectPolicy={handleSelectPolicy}
+              />
             </div>
           </div>
 
-          <PolicyFilters
-            clients={clients}
-            products={products}
-            onFilter={handleFilter}
-          />
+          <PaymentsFilters onFilter={handleFilter} />
 
           <Tabs
             defaultValue="list"
             className="mb-6"
+            value={activeView}
             onValueChange={(value) =>
               setActiveView(value as 'list' | 'calendar')
             }
@@ -261,6 +327,8 @@ export default function PoliciesPage() {
                     <PaymentTable
                       payments={payments}
                       onUpdateStatus={handleUpdateStatus}
+                      selectedPolicy={selectedPolicy}
+                      onSelectPolicy={setSelectedPolicy}
                     />
                   ) : (
                     <div className="text-center py-8 text-zinc-400">
@@ -296,7 +364,7 @@ export default function PoliciesPage() {
                   ) : (
                     <PolicyCalendar
                       policies={[]}
-                      onSelectPolicy={() => {}}
+                      onSelectPolicy={(policy) => handleSelectPolicy(policy.id)}
                       payments={payments}
                       onSelectPayment={(payment) =>
                         handleUpdateStatus(payment, 'PAID')

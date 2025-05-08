@@ -135,7 +135,7 @@ export function PaymentStatusDialog({
           <div className="space-y-4">
             <div>
               <p className="text-sm font-medium text-zinc-400 mb-1">Apólice</p>
-              <p className="text-white">{payment.policy?.name || "—"}</p>
+              <p className="text-white">{payment.policyNumber}</p>
             </div>
 
             <div>

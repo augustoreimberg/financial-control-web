@@ -1,13 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PieChart as PieChartIcon } from "lucide-react"
 import { cookies } from "next/headers"
 import { getPaymentMetrics } from "@/actions/get-payments-metrics"
 import Sidebar from "@/components/sidebar"
-import DashboardChart from "@/components/dashboard-chart"
 import { redirect } from "next/navigation"
-
-const COLORS = ["#10B981", "#FBBF24", "#EF4444"]
+import DashboardProducts from "@/components/dash-products"
+import { getProducts } from "@/actions/get-product"
+import { DashboardMetrics } from "@/components/dash-metrics"
+import DashboardClients from "@/components/dash-clients"
+import { getClients } from "@/actions/get-clients"
 
 export default async function DashboardPage() {
   const cookieStore = await cookies()
@@ -18,6 +18,8 @@ export default async function DashboardPage() {
   }
 
   const metrics = await getPaymentMetrics(token)
+  const products = await getProducts({}, token)
+  const clients = await getClients({}, token)
 
   if (!metrics) {
     return (
@@ -26,12 +28,6 @@ export default async function DashboardPage() {
       </div>
     )
   }
-
-  const chartData = [
-    { name: "Pago", value: metrics.statuses.paid, color: COLORS[0] },
-    { name: "Pendente", value: metrics.statuses.pending, color: COLORS[1] },
-    { name: "Falhou", value: metrics.statuses.defeated, color: COLORS[2] },
-  ]
 
   return (
     <>
@@ -45,27 +41,24 @@ export default async function DashboardPage() {
               <TabsTrigger value="overview" className="data-[state=active]:bg-red-900 data-[state=active]:text-white">
                 Visão Geral
               </TabsTrigger>
+              <TabsTrigger value="products" className="data-[state=active]:bg-red-900 data-[state=active]:text-white">
+                Produtos
+              </TabsTrigger>
+              <TabsTrigger value="clients" className="data-[state=active]:bg-red-900 data-[state=active]:text-white">
+                Clientes
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-4">
-              <Card className="border-zinc-800 bg-zinc-900/90 backdrop-blur-xl shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-lg text-white flex items-center gap-2">
-                    <PieChartIcon className="h-5 w-5 text-red-500" />
-                    Distribuição de Pagamentos
-                  </CardTitle>
-                  <CardDescription className="text-zinc-400">Status atual dos pagamentos</CardDescription>
-                </CardHeader>
+              <DashboardMetrics metrics={metrics} />
+            </TabsContent>
 
-                <CardContent className="flex flex-col items-center justify-center space-y-6">
-                  <DashboardChart data={chartData} total={metrics.total} />
+            <TabsContent value="products">
+              <DashboardProducts initialProducts={products.data || []} clientToken={token} />
+            </TabsContent>
 
-                  <div className="w-full text-right mt-4 text-sm text-zinc-400">
-                    Total de pagamentos:{" "}
-                    <span className="text-white font-semibold">{metrics.total}</span>
-                  </div>
-                </CardContent>
-              </Card>
+            <TabsContent value="clients">
+              <DashboardClients initialClients={clients.data || []} clientToken={token} />
             </TabsContent>
           </Tabs>
         </div>

@@ -53,16 +53,13 @@ export default function ProfilePage() {
       try {
         console.log("Buscando dados do usuário com ID:", user.id)
 
-        // Obter o token do cliente para passar para a server action
         const token = Cookies.get("client_token") || localStorage.getItem("accessToken")
 
-        // Log do token para debug
         console.log("Token do cliente (profile page):", token ? "presente" : "ausente")
         if (token) {
           console.log("Primeiros caracteres do token:", token.substring(0, 15) + "...")
         }
 
-        // Verificar se o token existe antes de fazer a chamada
         if (!token) {
           throw new Error("Token de autenticação não encontrado")
         }
@@ -87,7 +84,6 @@ export default function ProfilePage() {
   }, [router])
 
   const handleProfileUpdated = (name: string, email: string) => {
-    // Update local storage with new user data
     const userJson = localStorage.getItem("user")
     if (userJson) {
       try {

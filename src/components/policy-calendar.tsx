@@ -32,7 +32,6 @@ export function PolicyCalendar({ policies, onSelectPolicy, payments = [], onSele
   const monthEnd = endOfMonth(currentMonth)
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd })
 
-  // Agrupar pagamentos por dia de vencimento
   const paymentsByDay = daysInMonth.map((day) => {
     const dayPayments = payments.filter((payment) => {
       try {
@@ -118,7 +117,7 @@ export function PolicyCalendar({ policies, onSelectPolicy, payments = [], onSele
                       className="p-2 rounded-md bg-zinc-800/70 border border-zinc-700 hover:border-red-800 cursor-pointer transition-colors"
                       onClick={() => onSelectPayment && onSelectPayment(payment)}
                     >
-                      <div className="text-sm font-medium text-white">{payment.policyId || "—"}</div>
+                      <div className="text-sm font-medium text-white">{payment.policyNumber || "—"}</div>
                       <div className="text-xs text-zinc-400">{payment.plot}</div>
                       <div className="flex justify-between items-center mt-1">
                         <span className="text-xs">{getStatusBadge(payment.paymentStatus)}</span>

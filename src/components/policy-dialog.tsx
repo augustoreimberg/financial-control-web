@@ -91,7 +91,6 @@ export function PolicyDialog({
         console.error("Erro ao converter datas:", error)
       }
     } else if (!open) {
-      // Limpar o formulário quando o diálogo fechar
       setFormState({
         name: "",
         clientId: "",
@@ -124,14 +123,12 @@ export function PolicyDialog({
     try {
       const formData = new FormData()
 
-      // Adicionar todos os campos ao FormData
       Object.entries(formState).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           formData.append(key, value.toString())
         }
       })
 
-      // Adicionar ID se estiver editando
       if (isEditing && policy?.id) {
         formData.append("id", policy.id)
       }

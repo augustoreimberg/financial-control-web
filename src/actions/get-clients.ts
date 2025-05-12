@@ -2,6 +2,15 @@
 
 import { cookies } from "next/headers"
 
+export type User = {
+  id: string
+  name: string
+  email: string
+  role: "ADVISOR" | "BROKER" | string
+  createdAt: string
+  updatedAt: string
+}
+
 export type Client = {
   id: string
   name: string
@@ -11,6 +20,7 @@ export type Client = {
   createdAt: string
   updatedAt: string
   deletedAt: string | null
+  users: User[]
 }
 
 export type ClientsResponse = {
@@ -27,8 +37,8 @@ async function getAuthToken(clientToken?: string) {
     console.error("ERRO: Nenhum token de autenticação encontrado!")
     throw new Error("Não autenticado - token não encontrado")
   }
-  const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
-  return cleanToken
+
+  return finalToken.replace(/^Bearer\s+/i, "")
 }
 
 export const getClients = async (
@@ -39,6 +49,10 @@ export const getClients = async (
     accountNumber,
     role,
     userId,
+    name,
+    createdAt,
+    updatedAt,
+    deletedAt,
   }: {
     id?: string
     email?: string
@@ -46,6 +60,10 @@ export const getClients = async (
     accountNumber?: string
     role?: string
     userId?: string
+    name?: string
+    createdAt?: string
+    updatedAt?: string
+    deletedAt?: string
   } = {},
   clientToken?: string,
 ): Promise<ClientsResponse> => {
@@ -59,6 +77,10 @@ export const getClients = async (
     if (accountNumber) queryParams.append("accountNumber", accountNumber)
     if (role) queryParams.append("role", role)
     if (userId) queryParams.append("userId", userId)
+    if (name) queryParams.append("name", name)
+    if (createdAt) queryParams.append("createdAt", createdAt)
+    if (updatedAt) queryParams.append("updatedAt", updatedAt)
+    if (deletedAt) queryParams.append("deletedAt", deletedAt)
 
     const queryString = queryParams.toString()
     const url = `${process.env.API_URL}/accounts${queryString ? `?${queryString}` : ""}`
@@ -86,40 +108,36 @@ export const getClients = async (
     console.log("Dados recebidos da API:", data)
 
     if (data.accounts && Array.isArray(data.accounts)) {
-      const transformedClients = data.accounts.map((account: any) => ({
-        id: account._id.value,
-        name: account.props.name,
-        email: account.props.email,
-        sinacorCode: account.props.sinacorCode,
-        accountNumber: account.props.accountNumber,
-        createdAt: account.props.createdAt,
-        updatedAt: account.props.updatedAt,
-        deletedAt: account.props.deletedAt,
+      const transformedClients = data.accounts.map((account: any): Client => ({
+        id: account.id,
+        name: account.name,
+        email: account.email,
+        sinacorCode: account.sinacorCode,
+        accountNumber: account.accountNumber,
+        createdAt: account.createdAt,
+        updatedAt: account.updatedAt,
+        deletedAt: account.deletedAt,
+        users: (account.users || []).map((user: any): User => ({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        })),
       }))
 
       console.log("Clientes transformados:", transformedClients.length)
-      return {
-        data: transformedClients,
-        error: null,
-      }
+      return { data: transformedClients, error: null }
     }
 
     console.log("Formato de resposta não reconhecido")
-    return {
-      data: [],
-      error: null,
-    }
+    return { data: [], error: null }
   } catch (error) {
     console.error("Erro ao buscar clientes:", error)
-    if (error instanceof Error) {
-      return {
-        data: null,
-        error: error.message,
-      }
-    }
     return {
       data: null,
-      error: "Erro desconhecido ao buscar clientes",
+      error: error instanceof Error ? error.message : "Erro desconhecido ao buscar clientes",
     }
   }
 }

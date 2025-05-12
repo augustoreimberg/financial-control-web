@@ -1,8 +1,17 @@
 // Novo componente modal para criar apólice
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -21,7 +30,14 @@ interface CreatePolicyDialogProps {
   products: { id: string; name: string }[]
 }
 
-export function CreatePolicyDialog({ open, onOpenChange, clientToken, onCreated, clients, products }: CreatePolicyDialogProps) {
+export function CreatePolicyDialog({
+  open,
+  onOpenChange,
+  clientToken,
+  onCreated,
+  clients,
+  products,
+}: CreatePolicyDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
     clientId: "",
@@ -32,7 +48,7 @@ export function CreatePolicyDialog({ open, onOpenChange, clientToken, onCreated,
     monthlyPremium: "",
     annualPremium: "",
     paymentMethod: "CREDIT",
-    dueDate: ""
+    dueDate: "",
   })
 
   const [validityDate, setValidityDate] = useState<Date | undefined>()
@@ -52,7 +68,7 @@ export function CreatePolicyDialog({ open, onOpenChange, clientToken, onCreated,
     Object.entries({
       ...formData,
       validity: validityDate ? validityDate.toISOString() : "",
-      dueDate: dueDate ? dueDate.toISOString() : ""
+      dueDate: dueDate ? dueDate.toISOString() : "",
     }).forEach(([key, val]) => fd.append(key, val))
 
     const result = await createPolicy(fd, clientToken)
@@ -67,96 +83,158 @@ export function CreatePolicyDialog({ open, onOpenChange, clientToken, onCreated,
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-zinc-900 border-zinc-800 text-white shadow-2xl rounded-2xl p-6">
-        <DialogHeader className="flex flex-row items-center gap-2 mb-4">
-          <ShieldPlus/>
-          <DialogTitle className="text-2xl font-bold">Nova Apólice</DialogTitle>
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto bg-zinc-900 border-zinc-800 text-white shadow-2xl rounded-xl p-6">
+        <DialogHeader className="mb-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-red-500/10 p-2 rounded-lg">
+              <ShieldPlus className="h-6 w-6 text-red-500" />
+            </div>
+            <DialogTitle className="text-2xl font-bold">Nova Apólice</DialogTitle>
+          </div>
+          <DialogDescription className="text-zinc-400 mt-2">
+            Preencha os detalhes da nova apólice de seguro
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <Label htmlFor="name">Nome</Label>
-            <Input id="name" name="name" placeholder="Nome da apólice" onChange={handleChange} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-zinc-300 font-medium">
+              Nome
+            </Label>
+            <Input
+              id="name"
+              name="name"
+              placeholder="Nome da apólice"
+              onChange={handleChange}
+              className="bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500 focus-visible:border-red-400 transition-all"
+            />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="clientId">Cliente</Label>
-            <select id="clientId" name="clientId" onChange={handleChange} className="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2">
+          <div className="space-y-2">
+            <Label htmlFor="clientId" className="text-zinc-300 font-medium">
+              Cliente
+            </Label>
+            <select
+              id="clientId"
+              name="clientId"
+              onChange={handleChange}
+              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-md p-2 text-white focus:ring-red-500 focus:border-red-400 outline-none transition-all"
+            >
               <option value="">Selecione um cliente</option>
               {clients.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="productId">Produto</Label>
-            <select id="productId" name="productId" onChange={handleChange} className="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2">
+          <div className="space-y-2">
+            <Label htmlFor="productId" className="text-zinc-300 font-medium">
+              Produto
+            </Label>
+            <select
+              id="productId"
+              name="productId"
+              onChange={handleChange}
+              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-md p-2 text-white focus:ring-red-500 focus:border-red-400 outline-none transition-all"
+            >
               <option value="">Selecione um produto</option>
               {products.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
               ))}
             </select>
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="policyNumber">Número da Apólice</Label>
-            <Input id="policyNumber" name="policyNumber" placeholder="000000" onChange={handleChange} />
+          <div className="space-y-2">
+            <Label htmlFor="policyNumber" className="text-zinc-300 font-medium">
+              Número da Apólice
+            </Label>
+            <Input
+              id="policyNumber"
+              name="policyNumber"
+              placeholder="000000"
+              onChange={handleChange}
+              className="bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500 focus-visible:border-red-400 transition-all"
+            />
           </div>
 
-          <div className="space-y-1">
-            <Label>Validade</Label>
+          <div className="space-y-2">
+            <Label className="text-zinc-300 font-medium">Vencimento</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal bg-zinc-900 border-zinc-700">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal bg-zinc-800/50 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+                >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {validityDate ? format(validityDate, "dd/MM/yyyy") : "Selecionar data"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-zinc-900 border-zinc-700 text-white">
+              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white">
                 <Calendar
                   mode="single"
                   selected={validityDate}
                   onSelect={setValidityDate}
                   initialFocus
-                  className="text-white"
+                  className="text-white bg-zinc-800"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          <div className="space-y-1">
-            <Label>Vencimento</Label>
+          <div className="space-y-2">
+            <Label className="text-zinc-300 font-medium">Primeiro Pagamento</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal bg-zinc-900 border-zinc-700">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal bg-zinc-800/50 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+                >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dueDate ? format(dueDate, "dd/MM/yyyy") : "Selecionar data"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-zinc-900 border-zinc-700 text-white">
+              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white">
                 <Calendar
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
-                  className="text-white"
+                  className="text-white bg-zinc-800"
                 />
               </PopoverContent>
             </Popover>
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="frequency">Frequência</Label>
-            <select id="frequency" name="frequency" value={formData.frequency} onChange={handleChange} className="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2">
+          <div className="space-y-2">
+            <Label htmlFor="frequency" className="text-zinc-300 font-medium">
+              Frequência
+            </Label>
+            <select
+              id="frequency"
+              name="frequency"
+              value={formData.frequency}
+              onChange={handleChange}
+              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-md p-2 text-white focus:ring-red-500 focus:border-red-400 outline-none transition-all"
+            >
               <option value="MONTHLY">Mensal</option>
               <option value="ANNUAL">Anual</option>
             </select>
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="paymentMethod">Forma de Pagamento</Label>
-            <select id="paymentMethod" name="paymentMethod" onChange={handleChange} className="w-full bg-zinc-900 border border-zinc-700 rounded-md p-2">
+          <div className="space-y-2">
+            <Label htmlFor="paymentMethod" className="text-zinc-300 font-medium">
+              Forma de Pagamento
+            </Label>
+            <select
+              id="paymentMethod"
+              name="paymentMethod"
+              onChange={handleChange}
+              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-md p-2 text-white focus:ring-red-500 focus:border-red-400 outline-none transition-all"
+            >
               <option value="CREDIT">Cartão de Crédito</option>
               <option value="DEBIT">Débito em Conta</option>
               <option value="BILL">Boleto</option>
@@ -164,35 +242,84 @@ export function CreatePolicyDialog({ open, onOpenChange, clientToken, onCreated,
           </div>
 
           {formData.frequency === "MONTHLY" && (
-            <div className="space-y-1">
-              <Label htmlFor="monthlyPremium">Prêmio Mensal</Label>
-              <Input id="monthlyPremium" name="monthlyPremium" type="number" placeholder="R$ 0,00" onChange={handleChange} />
+            <div className="space-y-2">
+              <Label htmlFor="monthlyPremium" className="text-zinc-300 font-medium">
+                Prêmio Mensal
+              </Label>
+              <Input
+                id="monthlyPremium"
+                name="monthlyPremium"
+                type="number"
+                placeholder="R$ 0,00"
+                onChange={handleChange}
+                className="bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500 focus-visible:border-red-400 transition-all"
+              />
             </div>
           )}
 
           {formData.frequency === "ANNUAL" && (
-            <div className="space-y-1">
-              <Label htmlFor="annualPremium">Prêmio Anual</Label>
-              <Input id="annualPremium" name="annualPremium" type="number" placeholder="R$ 0,00" onChange={handleChange} />
+            <div className="space-y-2">
+              <Label htmlFor="annualPremium" className="text-zinc-300 font-medium">
+                Prêmio Anual
+              </Label>
+              <Input
+                id="annualPremium"
+                name="annualPremium"
+                type="number"
+                placeholder="R$ 0,00"
+                onChange={handleChange}
+                className="bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500 focus-visible:border-red-400 transition-all"
+              />
             </div>
           )}
         </div>
 
-        {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+        {error && (
+          <div className="mt-4 p-3 bg-red-950/50 border border-red-900 text-red-200 rounded-lg flex items-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            {error}
+          </div>
+        )}
 
-
-        <DialogFooter>
-          <Button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
-          >
-            {isSubmitting ? (
-              <><Loader2 className="h-4 w-4 animate-spin mr-2" />Criando...</>
-            ) : (
-              "Criar Apólice"
-            )}
-          </Button>
+        <DialogFooter className="mt-6">
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1 bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold transition-colors"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Criando...
+                </>
+              ) : (
+                "Criar Apólice"
+              )}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

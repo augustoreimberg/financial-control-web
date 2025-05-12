@@ -37,9 +37,9 @@ interface DashboardMetricsProps {
 
 export function DashboardMetrics({ metrics }: DashboardMetricsProps) {
   const chartData = [
-    { name: 'Pago', value: metrics.statuses.paid, color: '#10B981' },
-    { name: 'Pendente', value: metrics.statuses.pending, color: '#FBBF24' },
-    { name: 'Falhou', value: metrics.statuses.defeated, color: '#EF4444' },
+    { name: 'Pagos', value: metrics.statuses.paid, color: '#10B981' },
+    { name: 'Pendentes', value: metrics.statuses.pending, color: '#FBBF24' },
+    { name: 'Atrasados', value: metrics.statuses.defeated, color: '#EF4444' },
   ]
 
   const paidPercentage =

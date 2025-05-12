@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { Client } from "@/actions/get-clients"
 import { createClient } from "@/actions/create-client"
 import { updateClient } from "@/actions/update-client"
+import { getUsers, type User } from "@/actions/get-users-by-role"
 
 interface ClientDialogProps {
   open: boolean
@@ -27,25 +28,37 @@ interface ClientDialogProps {
   clientToken?: string
 }
 
-export function ClientDialog({
-  open,
-  onOpenChange,
-  client,
-  onSuccess,
-  clientToken,
-}: ClientDialogProps) {
+export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToken }: ClientDialogProps) {
   const [form, setForm] = useState({
     name: client?.name || "",
     email: client?.email || "",
     sinacorCode: client?.sinacorCode || "",
     accountNumber: client?.accountNumber || "",
+    advisorId: "",
+    brokerId: "",
   })
 
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const isEditing = !!client
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [advisors, setAdvisors] = useState<User[]>([])
+  const [brokers, setBrokers] = useState<User[]>([])
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+
+  useEffect(() => {
+    if (!isEditing && open) {
+      setIsLoadingUsers(true)
+      Promise.all([getUsers({ role: "ADVISOR" }, clientToken), getUsers({ role: "BROKER" }, clientToken)])
+        .then(([advisorsRes, brokersRes]) => {
+          if (!advisorsRes.error) setAdvisors(advisorsRes.data || [])
+          if (!brokersRes.error) setBrokers(brokersRes.data || [])
+        })
+        .finally(() => setIsLoadingUsers(false))
+    }
+  }, [open, isEditing, clientToken])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
@@ -61,8 +74,12 @@ export function ClientDialog({
       formData.append("sinacorCode", form.sinacorCode)
       formData.append("accountNumber", form.accountNumber)
 
-      let result
+      if (!isEditing) {
+        formData.append("advisorId", form.advisorId)
+        formData.append("brokerId", form.brokerId)
+      }
 
+      let result
       if (isEditing && client?.id) {
         formData.append("id", client.id)
         result = await updateClient(formData, clientToken)
@@ -73,7 +90,14 @@ export function ClientDialog({
       if (result.error) {
         setError(result.error)
       } else {
-        setForm({ name: "", email: "", sinacorCode: "", accountNumber: "" })
+        setForm({
+          name: "",
+          email: "",
+          sinacorCode: "",
+          accountNumber: "",
+          advisorId: "",
+          brokerId: "",
+        })
         onOpenChange(false)
         onSuccess()
       }
@@ -85,63 +109,179 @@ export function ClientDialog({
   }
 
   const handleClose = () => {
-    setForm({ name: "", email: "", sinacorCode: "", accountNumber: "" })
+    setForm({
+      name: "",
+      email: "",
+      sinacorCode: "",
+      accountNumber: "",
+      advisorId: "",
+      brokerId: "",
+    })
     setError(null)
     onOpenChange(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-zinc-900 border-zinc-800 text-white">
+      <DialogContent className="sm:max-w-[550px] bg-zinc-900 border-zinc-800 text-white shadow-xl rounded-xl p-6">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{isEditing ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
-            <DialogDescription className="text-zinc-400">
-              {isEditing
-                ? "Atualize os dados do cliente abaixo."
-                : "Preencha os dados para cadastrar um novo cliente."}
+          <DialogHeader className="space-y-2 mb-4">
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
+              {isEditing ? (
+                <>
+                  <span className="text-red-500 bg-red-500/10 p-1.5 rounded-lg">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    </svg>
+                  </span>
+                  Editar Cliente
+                </>
+              ) : (
+                <>
+                  <span className="text-red-500 bg-red-500/10 p-1.5 rounded-lg">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  </span>
+                  Novo Cliente
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400 text-base">
+              {isEditing ? "Atualize os dados do cliente abaixo." : "Preencha os dados para cadastrar um novo cliente."}
             </DialogDescription>
           </DialogHeader>
 
           {error && (
-            <Alert variant="destructive" className="mt-4 bg-red-950/50 border-red-900 text-red-200">
+            <Alert variant="destructive" className="mt-4 bg-red-950/50 border-red-900 text-red-200 rounded-lg">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription className="ml-2">{error}</AlertDescription>
             </Alert>
           )}
 
-          <div className="grid gap-4 py-4">
-            {[
-              { id: "name", label: "Nome" },
-              { id: "email", label: "Email" },
-              { id: "sinacorCode", label: "Código Sinacor" },
-              { id: "accountNumber", label: "Número da Conta" },
-            ].map(({ id, label }) => (
+          <div className="grid gap-5 py-4">
+            {["name", "email", "sinacorCode", "accountNumber"].map((id) => (
               <div key={id} className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor={id} className="text-right text-zinc-400">{label}</Label>
+                <Label htmlFor={id} className="text-right text-zinc-400 font-medium">
+                  {id === "name"
+                    ? "Nome"
+                    : id === "email"
+                      ? "Email"
+                      : id === "sinacorCode"
+                        ? "Código Sinacor"
+                        : "Número da Conta"}
+                </Label>
                 <Input
                   id={id}
                   name={id}
                   value={(form as any)[id]}
                   onChange={handleChange}
                   required
-                  className="col-span-3 bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500"
+                  className="col-span-3 bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500 focus-visible:border-red-400 transition-all"
+                  placeholder={
+                    id === "name"
+                      ? "Nome do cliente"
+                      : id === "email"
+                        ? "email@exemplo.com"
+                        : id === "sinacorCode"
+                          ? "Código Sinacor"
+                          : "Número da conta"
+                  }
                 />
               </div>
             ))}
+
+            {!isEditing && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="advisorId" className="text-right text-zinc-400">
+                    Assessor
+                  </Label>
+                  <select
+                    id="advisorId"
+                    name="advisorId"
+                    value={form.advisorId}
+                    onChange={handleChange}
+                    required
+                    className="col-span-3 bg-zinc-800/50 border border-zinc-700 text-white p-2 rounded-md focus:ring-red-500 focus:border-red-400 outline-none transition-all"
+                  >
+                    <option value="">Selecione um Assessor</option>
+                    {advisors.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="brokerId" className="text-right text-zinc-400">
+                    Corretor
+                  </Label>
+                  <select
+                    id="brokerId"
+                    name="brokerId"
+                    value={form.brokerId}
+                    onChange={handleChange}
+                    required
+                    className="col-span-3 bg-zinc-800/50 border border-zinc-700 text-white p-2 rounded-md focus:ring-red-500 focus:border-red-400 outline-none transition-all"
+                  >
+                    <option value="">Selecione um Corretor</option>
+                    {brokers.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
           </div>
 
-          <DialogFooter>
+          {isLoadingUsers && (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-red-500" />
+              <span className="ml-2 text-zinc-400">Carregando usuários...</span>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 mt-6">
             <Button
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+              className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
               disabled={isSubmitting}
             >
               Cancelar
             </Button>
-            <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
+              disabled={isSubmitting || isLoadingUsers}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

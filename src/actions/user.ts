@@ -5,6 +5,7 @@ import { cookies } from "next/headers"
 export interface UserData {
   user: {
     props: {
+      id: string
       name: string
       email: string
       password: string
@@ -12,24 +13,16 @@ export interface UserData {
       createdAt: string
       updatedAt: string | null
     }
-    _id: {
-      value: string
-    }
   }
 }
-
-// Modificar a função getAuthToken para lidar melhor com tokens indefinidos
-// Substituir a função inteira:
 
 async function getAuthToken(clientToken?: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get("access_token")?.value
 
-  // Log para debug
   console.log("Token do servidor (raw):", token || "não encontrado")
   console.log("Token do cliente (raw):", clientToken || "não encontrado")
 
-  // Usar o token do servidor ou o token do cliente
   const finalToken = token || clientToken
 
   if (!finalToken) {
@@ -37,23 +30,19 @@ async function getAuthToken(clientToken?: string) {
     throw new Error("Não autenticado - token não encontrado")
   }
 
-  // Garantir que o token não tenha o prefixo "Bearer " duplicado
   const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
 
-  // Log do token final para debug
   console.log("Token final (limpo):", cleanToken.substring(0, 15) + "...")
 
   return cleanToken
 }
 
-// Modificar a função getUserProfile para usar o token JWT corretamente
 export async function getUserProfile(userId: string, clientToken?: string) {
   try {
     const token = await getAuthToken(clientToken)
 
     console.log(`Buscando perfil do usuário: ${userId}`)
 
-    // Mostrar o cabeçalho de autorização completo para debug
     const authHeader = `Bearer ${token}`
     console.log("Cabeçalho de autorização completo:", authHeader.substring(0, 20) + "...")
 
@@ -66,7 +55,6 @@ export async function getUserProfile(userId: string, clientToken?: string) {
       cache: "no-store",
     })
 
-    // Log da resposta para debug
     console.log("Status da resposta:", response.status)
 
     if (!response.ok) {
@@ -104,7 +92,6 @@ export async function updateUserProfile(
     console.log(`Atualizando perfil do usuário: ${userId}`)
     console.log("Dados para atualização:", userData)
 
-    // Mostrar o cabeçalho de autorização completo para debug
     const authHeader = `Bearer ${token}`
     console.log("Cabeçalho de autorização completo:", authHeader)
 
@@ -118,7 +105,6 @@ export async function updateUserProfile(
       body: JSON.stringify(userData),
     })
 
-    // Log da resposta para debug
     console.log("Status da resposta:", response.status)
 
     if (!response.ok) {
@@ -152,7 +138,6 @@ export async function createUser(
     console.log("Criando novo usuário")
     console.log("Dados para criação:", { ...userData, password: "***" })
 
-    // Mostrar o cabeçalho de autorização completo para debug
     const authHeader = `Bearer ${token}`
     console.log("Cabeçalho de autorização completo:", authHeader)
 
@@ -166,7 +151,6 @@ export async function createUser(
       body: JSON.stringify(userData),
     })
 
-    // Log da resposta para debug
     console.log("Status da resposta:", response.status)
 
     if (!response.ok) {

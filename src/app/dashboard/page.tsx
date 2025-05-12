@@ -36,10 +36,10 @@ export default async function DashboardPage() {
         <div className="max-w-6xl mx-auto">
           <h1 className="text-2xl font-bold text-white mb-6">Dashboard</h1>
 
-          <Tabs defaultValue="overview" className="mb-8">
+          <Tabs defaultValue="metrics" className="mb-8">
             <TabsList className="bg-zinc-800 border border-zinc-700">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-red-900 data-[state=active]:text-white">
-                Visão Geral
+              <TabsTrigger value="metrics" className="data-[state=active]:bg-red-900 data-[state=active]:text-white">
+                Métricas
               </TabsTrigger>
               <TabsTrigger value="products" className="data-[state=active]:bg-red-900 data-[state=active]:text-white">
                 Produtos
@@ -49,7 +49,7 @@ export default async function DashboardPage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="overview" className="mt-4">
+            <TabsContent value="metrics" className="mt-4">
               <DashboardMetrics metrics={metrics} />
             </TabsContent>
 

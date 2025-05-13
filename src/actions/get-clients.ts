@@ -132,7 +132,7 @@ export const getClients = async (
     }
 
     console.log("Formato de resposta não reconhecido")
-    return { data: [], error: null }
+    return { data: data, error: null }
   } catch (error) {
     console.error("Erro ao buscar clientes:", error)
     return {

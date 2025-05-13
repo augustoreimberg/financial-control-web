@@ -1,16 +1,20 @@
 "use client"
 
+import type React from "react"
+
 import { useMemo, useState, useEffect } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Clock, AlertTriangle, MoreHorizontal, ArrowBigLeft, ArrowBigRight } from "lucide-react"
+import { CheckCircle, Clock, AlertTriangle, MoreHorizontal, ArrowBigLeft, ArrowBigRight, Pen } from "lucide-react"
 import { format, parseISO, isWithinInterval, startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import type { Payment } from "@/actions/get-payments"
+import { EditDueDateModal } from "./edit-payment-modal"
+import { getClients } from "@/actions/get-clients"
 
 interface PaymentTableProps {
   payments: Payment[]
@@ -27,18 +31,65 @@ export function PaymentTable({
 }: PaymentTableProps) {
   const [selectedMonth, setSelectedMonth] = useState(new Date())
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
+  const [clientDetails, setClientDetails] = useState<{ advisor: any; broker: any } | null>(null)
+  const [isLoadingClient, setIsLoadingClient] = useState(false)
 
   useEffect(() => {
     if (selectedPolicy) {
       setDialogOpen(true)
+
+      // Find the selected payment to get the accountId
+      const selectedPaymentData = payments.find((p) => p.policyId === selectedPolicy)
+
+      if (selectedPaymentData?.accountId) {
+        setIsLoadingClient(true)
+        getClients({ id: selectedPaymentData.accountId })
+          .then((response) => {
+            if (response.data && response.data.length > 0) {
+              const client = response.data[0]
+              const advisor = client.users.find((user) => user.role === "ADVISOR") || null
+              const broker = client.users.find((user) => user.role === "BROKER") || null
+
+              setClientDetails({ advisor, broker })
+            } else if (response.data && response.data.account) {
+              const account = response.data.account
+              const advisor = account.users.find((user) => user.role === "ADVISOR") || null
+              const broker = account.users.find((user) => user.role === "BROKER") || null
+
+              setClientDetails({ advisor, broker })
+            } else {
+              setClientDetails(null)
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching client details:", error)
+            setClientDetails(null)
+          })
+          .finally(() => {
+            setIsLoadingClient(false)
+          })
+      }
     }
-  }, [selectedPolicy])
+  }, [selectedPolicy, payments])
 
   const handleDialogOpenChange = (open: boolean) => {
     setDialogOpen(open)
     if (!open && onSelectPolicy) {
       onSelectPolicy(null)
     }
+  }
+  console.log("Payments:", payments)
+
+  const handleEditPayment = (payment: Payment, e: React.MouseEvent) => {
+    e.stopPropagation()
+    setSelectedPayment(payment)
+    setEditModalOpen(true)
+  }
+
+  const handlePaymentUpdated = (updatedPayment: Payment) => {
+    console.log("Payment updated:", updatedPayment)
   }
 
   const formatCurrency = (value: number) =>
@@ -110,7 +161,8 @@ export function PaymentTable({
           className="text-sm bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
           onClick={() => setSelectedMonth((prev) => subMonths(prev, 1))}
         >
-          <ArrowBigLeft/>Mês Anterior
+          <ArrowBigLeft />
+          Mês Anterior
         </Button>
 
         <span className="text-base font-semibold text-white">
@@ -122,7 +174,8 @@ export function PaymentTable({
           className="text-sm bg-zinc-900 border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
           onClick={() => setSelectedMonth((prev) => addMonths(prev, 1))}
         >
-          Próximo Mês<ArrowBigRight/>
+          Próximo Mês
+          <ArrowBigRight />
         </Button>
       </div>
 
@@ -136,7 +189,7 @@ export function PaymentTable({
             <TableHead className="text-zinc-400">Valor</TableHead>
             <TableHead className="text-zinc-400">Vencimento</TableHead>
             <TableHead className="text-zinc-400">Status</TableHead>
-            <TableHead className="text-zinc-400 text-right">Ações</TableHead>
+            <TableHead className="text-zinc-400 text-right"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -154,6 +207,15 @@ export function PaymentTable({
               <TableCell className="text-zinc-300">{formatDate(payment.dueDate)}</TableCell>
               <TableCell>{getStatusBadge(payment.paymentStatus)}</TableCell>
               <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white mr-2"
+                  onClick={(e) => handleEditPayment(payment, e)}
+                >
+                  <Pen className="h-4 w-4" />
+                  <span className="sr-only">Editar data de vencimento</span>
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -238,6 +300,38 @@ export function PaymentTable({
                       <p className="font-medium">{paymentsByPolicy.length}</p>
                     </div>
                   </div>
+
+                  {isLoadingClient ? (
+                    <div className="flex justify-center py-4">
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-zinc-400"></div>
+                    </div>
+                  ) : clientDetails ? (
+                    <div className="space-y-4 mt-6 border-t border-zinc-700 pt-4">
+                      <h3 className="text-base font-medium">Responsáveis</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-zinc-400">Assessor</p>
+                          {clientDetails.advisor ? (
+                            <div>
+                              <p className="font-medium">{clientDetails.advisor.name}</p>
+                            </div>
+                          ) : (
+                            <p className="text-zinc-400 italic">Não atribuído</p>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm text-zinc-400">Corretor</p>
+                          {clientDetails.broker ? (
+                            <div>
+                              <p className="font-medium">{clientDetails.broker.name}</p>
+                            </div>
+                          ) : (
+                            <p className="text-zinc-400 italic">Não atribuído</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               ) : (
                 <div className="text-sm text-zinc-400">
@@ -303,6 +397,12 @@ export function PaymentTable({
           </Tabs>
         </DialogContent>
       </Dialog>
+      <EditDueDateModal
+        payment={selectedPayment}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSuccess={handlePaymentUpdated}
+      />
     </div>
   )
 }

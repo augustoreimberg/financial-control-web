@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertCircle, Loader2 } from "lucide-react"
+import { AlertCircle, Loader2, UserPlus, PenSquare } from 'lucide-react'
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { Client } from "@/actions/get-clients"
 import { createClient } from "@/actions/create-client"
@@ -30,10 +30,10 @@ interface ClientDialogProps {
 
 export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToken }: ClientDialogProps) {
   const [form, setForm] = useState({
-    name: client?.name || "",
-    email: client?.email || "",
-    sinacorCode: client?.sinacorCode || "",
-    accountNumber: client?.accountNumber || "",
+    name: "",
+    email: "",
+    sinacorCode: "",
+    accountNumber: "",
     advisorId: "",
     brokerId: "",
   })
@@ -45,6 +45,28 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToke
   const [advisors, setAdvisors] = useState<User[]>([])
   const [brokers, setBrokers] = useState<User[]>([])
   const [isLoadingUsers, setIsLoadingUsers] = useState(false)
+
+  useEffect(() => {
+    if (client && open) {
+      setForm({
+        name: client.name || "",
+        email: client.email || "",
+        sinacorCode: client.sinacorCode || "",
+        accountNumber: client.accountNumber || "",
+        advisorId: "",
+        brokerId: "",
+      })
+    } else if (!isEditing && open) {
+      setForm({
+        name: "",
+        email: "",
+        sinacorCode: "",
+        accountNumber: "",
+        advisorId: "",
+        brokerId: "",
+      })
+    }
+  }, [client, open, isEditing])
 
   useEffect(() => {
     if (!isEditing && open) {
@@ -90,14 +112,6 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToke
       if (result.error) {
         setError(result.error)
       } else {
-        setForm({
-          name: "",
-          email: "",
-          sinacorCode: "",
-          accountNumber: "",
-          advisorId: "",
-          brokerId: "",
-        })
         onOpenChange(false)
         onSuccess()
       }
@@ -109,14 +123,6 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToke
   }
 
   const handleClose = () => {
-    setForm({
-      name: "",
-      email: "",
-      sinacorCode: "",
-      accountNumber: "",
-      advisorId: "",
-      brokerId: "",
-    })
     setError(null)
     onOpenChange(false)
   }
@@ -129,43 +135,16 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToke
             <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
               {isEditing ? (
                 <>
-                  <span className="text-red-500 bg-red-500/10 p-1.5 rounded-lg">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                    </svg>
-                  </span>
+                  <div className="text-red-500 bg-red-500/10 p-2 rounded-lg">
+                    <PenSquare className="h-5 w-5" />
+                  </div>
                   Editar Cliente
                 </>
               ) : (
                 <>
-                  <span className="text-red-500 bg-red-500/10 p-1.5 rounded-lg">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                  </span>
+                  <div className="text-red-500 bg-red-500/10 p-2 rounded-lg">
+                    <UserPlus className="h-5 w-5" />
+                  </div>
                   Novo Cliente
                 </>
               )}
@@ -191,8 +170,8 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToke
                     : id === "email"
                       ? "Email"
                       : id === "sinacorCode"
-                        ? "Código Sinacor"
-                        : "Número da Conta"}
+                        ? "Sinacor"
+                        : "Conta"}
                 </Label>
                 <Input
                   id={id}
@@ -207,8 +186,8 @@ export function ClientDialog({ open, onOpenChange, client, onSuccess, clientToke
                       : id === "email"
                         ? "email@exemplo.com"
                         : id === "sinacorCode"
-                          ? "Código Sinacor"
-                          : "Número da conta"
+                          ? "Sinacor"
+                          : "Conta"
                   }
                 />
               </div>

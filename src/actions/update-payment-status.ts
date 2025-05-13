@@ -77,25 +77,30 @@ export const updatePaymentStatus = async (
     const data = await response.json()
     console.log("Pagamento atualizado com sucesso:", id)
 
-    const updatedPayment = {
-      id,
-      policyId: data.payment?.props?.policyId || "",
-      plot: data.payment?.props?.plot || "",
-      price: data.payment?.props?.price || 0,
-      paymentStatus: paymentStatus,
-      parentId: data.payment?.props?.parentId || null,
-      dueDate: data.payment?.props?.dueDate || "",
-      paymentDate: paymentDate || null,
-      createdAt: data.payment?.props?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      policy: {
-        name: "Apólice " + (data.payment?.props?.policyId || "").substring(0, 8),
-        clientId: "",
-        client: {
-          name: "Cliente",
+      const updatedPayment = {
+        id,
+        policyId: data.payment?.props?.policyId || "",
+        policyNumber: data.payment?.props?.policyNumber || "",
+        accountId: data.payment?.props?.accountId || "",
+        accountName: data.payment?.props?.accountName || "",
+        productId: data.payment?.props?.productId || "",
+        productName: data.payment?.props?.productName || "",
+        plot: data.payment?.props?.plot || "",
+        price: data.payment?.props?.price || 0,
+        paymentStatus: paymentStatus,
+        parentId: data.payment?.props?.parentId || null,
+        dueDate: data.payment?.props?.dueDate || "",
+        paymentDate: paymentDate || null,
+        createdAt: data.payment?.props?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        policy: {
+          name: "Apólice " + (data.payment?.props?.policyId || "").substring(0, 8),
+          clientId: "",
+          client: {
+            name: "Cliente",
+          },
         },
-      },
-    }
+      };
 
     return {
       data: updatedPayment,

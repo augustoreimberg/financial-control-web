@@ -14,6 +14,7 @@ export type Policy = {
   annualPremium?: number
   paymentMethod: "CREDIT" | "DEBIT" | "BILL"
   dueDate: string
+  paymentDay?: number
   createdAt: string
   updatedAt: string
 }
@@ -41,7 +42,7 @@ export const createPolicy = async (formData: FormData, clientToken?: string): Pr
     const token = await getAuthToken(clientToken)
 
     const name = formData.get("name") as string
-    const accountId = formData.get("clientId") as string // Renomeado no envio
+    const accountId = formData.get("clientId") as string
     const productId = formData.get("productId") as string
     const policyNumber = formData.get("policyNumber") as string
     const validity = formData.get("validity") as string
@@ -50,6 +51,7 @@ export const createPolicy = async (formData: FormData, clientToken?: string): Pr
     const annualPremiumRaw = formData.get("annualPremium") as string
     const paymentMethod = formData.get("paymentMethod") as "CREDIT" | "DEBIT" | "BILL"
     const dueDate = formData.get("dueDate") as string
+    const paymentDay = formData.get("paymentDay")
 
     if (!name || name.trim().length < 2) {
       return { data: null, error: "Nome da apólice deve ter pelo menos 2 caracteres" }
@@ -75,6 +77,7 @@ export const createPolicy = async (formData: FormData, clientToken?: string): Pr
       monthlyPremium,
       paymentMethod,
       dueDate,
+      paymentDay,
     }
 
     if (annualPremiumRaw) {

@@ -49,6 +49,7 @@ export function CreatePolicyDialog({
     annualPremium: "",
     paymentMethod: "CREDIT",
     dueDate: "",
+    paymentDay: "",
   })
 
   const [validityDate, setValidityDate] = useState<Date | undefined>()
@@ -162,31 +163,7 @@ export function CreatePolicyDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-zinc-300 font-medium">Vencimento</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal bg-zinc-800/50 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {validityDate ? format(validityDate, "dd/MM/yyyy") : "Selecionar data"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white">
-                <Calendar
-                  mode="single"
-                  selected={validityDate}
-                  onSelect={setValidityDate}
-                  initialFocus
-                  className="text-white bg-zinc-800"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-zinc-300 font-medium">Primeiro Pagamento</Label>
+            <Label className="text-zinc-300 font-medium">Data de início</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -210,6 +187,93 @@ export function CreatePolicyDialog({
           </div>
 
           <div className="space-y-2">
+            <Label className="text-zinc-300 font-medium">Vigência</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal bg-zinc-800/50 border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {validityDate ? format(validityDate, "dd/MM/yyyy") : "Selecionar data"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white">
+                <div className="p-2 border-b border-zinc-700">
+                  <div className="flex space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-colors text-sm"
+                      onClick={() => {
+                        if (dueDate) {
+                          const newDate = new Date(dueDate)
+                          newDate.setFullYear(newDate.getFullYear() + 1)
+                          setValidityDate(newDate)
+                        }
+                      }}
+                    >
+                      1 Ano
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-colors text-sm"
+                      onClick={() => {
+                        if (dueDate) {
+                          const newDate = new Date(dueDate)
+                          newDate.setFullYear(newDate.getFullYear() + 2)
+                          setValidityDate(newDate)
+                        }
+                      }}
+                    >
+                      2 Anos
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:border-zinc-600 transition-colors text-sm"
+                      onClick={() => {
+                        if (dueDate) {
+                          const newDate = new Date(dueDate)
+                          newDate.setFullYear(newDate.getFullYear() + 3)
+                          setValidityDate(newDate)
+                        }
+                      }}
+                    >
+                      3 Anos
+                    </Button>
+                  </div>
+                </div>
+                <Calendar
+                  mode="single"
+                  selected={validityDate}
+                  onSelect={setValidityDate}
+                  initialFocus
+                  className="text-white bg-zinc-800"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="paymentDay" className="text-zinc-300 font-medium">
+              Dia de pagamento
+            </Label>
+            <Input
+              id="paymentDay"
+              name="paymentDay"
+              type="number"
+              placeholder="Dia de vencimento mensal"
+              onChange={handleChange}
+              className="bg-zinc-800/50 border-zinc-700 text-white focus-visible:ring-red-500 focus-visible:border-red-400 transition-all"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="frequency" className="text-zinc-300 font-medium">
               Frequência
             </Label>
@@ -222,22 +286,6 @@ export function CreatePolicyDialog({
             >
               <option value="MONTHLY">Mensal</option>
               <option value="ANNUAL">Anual</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="paymentMethod" className="text-zinc-300 font-medium">
-              Forma de Pagamento
-            </Label>
-            <select
-              id="paymentMethod"
-              name="paymentMethod"
-              onChange={handleChange}
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-md p-2 text-white focus:ring-red-500 focus:border-red-400 outline-none transition-all"
-            >
-              <option value="CREDIT">Cartão de Crédito</option>
-              <option value="DEBIT">Débito em Conta</option>
-              <option value="BILL">Boleto</option>
             </select>
           </div>
 
@@ -272,29 +320,22 @@ export function CreatePolicyDialog({
               />
             </div>
           )}
-        </div>
-
-        {error && (
-          <div className="mt-4 p-3 bg-red-950/50 border border-red-900 text-red-200 rounded-lg flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2"
+          <div className="space-y-2">
+            <Label htmlFor="paymentMethod" className="text-zinc-300 font-medium">
+              Forma de Pagamento
+            </Label>
+            <select
+              id="paymentMethod"
+              name="paymentMethod"
+              onChange={handleChange}
+              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-md p-2 text-white focus:ring-red-500 focus:border-red-400 outline-none transition-all"
             >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
-            {error}
+              <option value="CREDIT">Cartão de Crédito</option>
+              <option value="DEBIT">Débito em Conta</option>
+              <option value="BILL">Boleto</option>
+            </select>
           </div>
-        )}
+        </div>
 
         <DialogFooter className="mt-6">
           <div className="flex flex-col sm:flex-row gap-3 w-full">

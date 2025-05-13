@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Loader2, Users, Plus, Search, Pencil, AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getClients, type Client } from '@/actions/get-clients'
-import { ClientDialog } from './client-dialog' // componente de diálogo a ser criado
+import { ClientDialog } from './client-dialog'
 
 interface DashboardClientsProps {
   initialClients: Client[]

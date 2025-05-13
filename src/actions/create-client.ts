@@ -9,13 +9,9 @@ export async function createClient(formData: FormData, token?: string): Promise<
   const email = formData.get("email")?.toString()
   const sinacorCode = formData.get("sinacorCode")?.toString()
   const accountNumber = formData.get("accountNumber")?.toString()
+  const advisorId = formData.get("advisorId")?.toString()
+  const brokerId = formData.get("brokerId")?.toString()
 
-  const advisorId = process.env.DEFAULT_ADVISOR_ID
-  const brokerId = process.env.DEFAULT_BROKER_ID
-
-  if (!advisorId || !brokerId) {
-    return { error: "IDs padrão de Advisor ou Broker não configurados" }
-  }
 
   try {
     const response = await fetch(`${process.env.API_URL}/accounts`, {

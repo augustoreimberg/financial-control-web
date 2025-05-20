@@ -110,7 +110,9 @@ export default function ProfilePage() {
     )
   }
 
-  const isAdmin = userData?.user.props.role === "ADMIN"
+  console.log("Dados do usuário:", userData)
+
+  const isAdmin = userData?.user.role === "ADMIN"
 
   return (
     <>

@@ -20,9 +20,9 @@ interface ProfileFormProps {
 
 export default function ProfileForm({ userData, userId, clientToken, onProfileUpdated }: ProfileFormProps) {
   const [formState, setFormState] = useState({
-    name: userData?.user.props.name || "",
-    email: userData?.user.props.email || "",
-    password: userData?.user.props.password || "",
+    name: userData?.user.name || "",
+    email: userData?.user.email || "",
+    password: userData?.user.password || "",
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -195,7 +195,7 @@ export default function ProfileForm({ userData, userId, clientToken, onProfileUp
               <Shield className="absolute left-3 top-2.5 h-5 w-5 text-zinc-500" />
               <Input
                 id="role"
-                value={userData?.user.props.role || ""}
+                value={userData?.user.role || ""}
                 readOnly
                 disabled
                 className="bg-zinc-800/30 border-zinc-700 text-zinc-400 pl-10 h-11 cursor-not-allowed"
@@ -207,12 +207,12 @@ export default function ProfileForm({ userData, userId, clientToken, onProfileUp
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div className="bg-zinc-800/30 p-4 rounded-lg border border-zinc-700">
               <p className="text-sm text-zinc-500">Criado em</p>
-              <p className="text-zinc-300">{formatDate(userData?.user.props.createdAt || null)}</p>
+              <p className="text-zinc-300">{formatDate(userData?.user.createdAt || null)}</p>
             </div>
 
             <div className="bg-zinc-800/30 p-4 rounded-lg border border-zinc-700">
               <p className="text-sm text-zinc-500">Ultima atualização</p>
-              <p className="text-zinc-300">{formatDate(userData?.user.props.updatedAt || null)}</p>
+              <p className="text-zinc-300">{formatDate(userData?.user.updatedAt || null)}</p>
             </div>
           </div>
 

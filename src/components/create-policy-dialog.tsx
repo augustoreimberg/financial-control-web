@@ -174,7 +174,7 @@ export function CreatePolicyDialog({
                   {dueDate ? format(dueDate, "dd/MM/yyyy") : "Selecionar data"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white">
+              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white" side="top">
                 <Calendar
                   mode="single"
                   selected={dueDate}
@@ -198,7 +198,7 @@ export function CreatePolicyDialog({
                   {validityDate ? format(validityDate, "dd/MM/yyyy") : "Selecionar data"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white">
+              <PopoverContent className="w-auto p-0 bg-zinc-800 border-zinc-700 text-white" side="top">
                 <div className="p-2 border-b border-zinc-700">
                   <div className="flex space-x-2">
                     <Button

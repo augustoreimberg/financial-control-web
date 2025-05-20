@@ -12,7 +12,6 @@ async function getAuthToken(clientToken?: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get("access_token")?.value
 
-  // Usar o token do servidor ou o token do cliente
   const finalToken = token || clientToken
 
   if (!finalToken) {
@@ -20,7 +19,6 @@ async function getAuthToken(clientToken?: string) {
     throw new Error("Não autenticado - token não encontrado")
   }
 
-  // Garantir que o token não tenha o prefixo "Bearer " duplicado
   const cleanToken = finalToken.replace(/^Bearer\s+/i, "")
   return cleanToken
 }
@@ -52,7 +50,6 @@ export const getUpcomingPayments = async (clientToken?: string): Promise<Upcomin
     const data = await response.json()
     console.log("Dados recebidos da API:", data)
 
-    // Transformar a estrutura específica da API em um formato mais fácil de usar
     if (data.payments && Array.isArray(data.payments)) {
       const transformedPayments = data.payments.map((payment: any) => ({
         id: payment._id.value,
@@ -65,7 +62,6 @@ export const getUpcomingPayments = async (clientToken?: string): Promise<Upcomin
         paymentDate: payment.props.paymentDate || null,
         createdAt: payment.props.createdAt,
         updatedAt: payment.props.updatedAt || payment.props.createdAt,
-        // Adicionar propriedades vazias para policy que serão preenchidas depois
         policy: {
           name: "Apólice " + payment.props.policyId.substring(0, 8),
           clientId: "",
@@ -82,7 +78,6 @@ export const getUpcomingPayments = async (clientToken?: string): Promise<Upcomin
       }
     }
 
-    // Caso não consiga identificar o formato, retorna um array vazio
     console.log("Formato de resposta não reconhecido")
     return {
       data: [],

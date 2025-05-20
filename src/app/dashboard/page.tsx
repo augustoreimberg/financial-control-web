@@ -49,7 +49,7 @@ export default async function DashboardPage() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="metrics" className="mt-4">
+            <TabsContent value="metrics">
               <DashboardMetrics metrics={metrics} />
             </TabsContent>
 

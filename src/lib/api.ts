@@ -3,7 +3,7 @@ import { getJwtToken } from "./jwt";
 const API_URL = process.env.API_URL;
 
 export async function api(endpoint: string, options: RequestInit = {}) {
-    const token = getJwtToken();
+    const token = await getJwtToken();
 
     const headers = {
         "Content-Type": "application/json",

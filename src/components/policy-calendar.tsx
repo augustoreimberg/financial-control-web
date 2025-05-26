@@ -44,6 +44,7 @@ export function PolicyCalendar({ payments = [], onSelectPayment }: PolicyCalenda
         const dueDate = new Date(payment.dueDate)
         return isSameDay(dueDate, day)
       } catch (error) {
+        console.error("Erro ao comparar datas:", error)
         return false
       }
     })

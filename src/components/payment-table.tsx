@@ -1,24 +1,60 @@
-"use client"
+'use client'
 
-import type React from "react"
+import type React from 'react'
 
-import { useMemo, useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { CheckCircle, Clock, AlertTriangle, MoreHorizontal, ArrowBigLeft, ArrowBigRight, Pen } from "lucide-react"
-import { format, parseISO, isWithinInterval, startOfMonth, endOfMonth, subMonths, addMonths } from "date-fns"
-import { ptBR } from "date-fns/locale"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import type { Payment } from "@/actions/get-payments"
-import { EditDueDateModal } from "./edit-payment-modal"
-import { getClients } from "@/actions/get-clients"
+import { useMemo, useState, useEffect } from 'react'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  MoreHorizontal,
+  ArrowBigLeft,
+  ArrowBigRight,
+  Pen,
+} from 'lucide-react'
+import {
+  format,
+  parseISO,
+  isWithinInterval,
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  addMonths,
+} from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import type { Payment } from '@/actions/get-payments'
+import { EditDueDateModal } from './edit-payment-modal'
+import { getClients } from '@/actions/get-clients'
 
 interface PaymentTableProps {
   payments: Payment[]
-  onUpdateStatus: (payment: Payment, status: "PAID" | "PENDING" | "DEFEATED") => void
+  onUpdateStatus: (
+    payment: Payment,
+    status: 'PAID' | 'PENDING' | 'DEFEATED'
+  ) => void
   selectedPolicy?: string | null
   onSelectPolicy?: (policyId: string | null) => void
 }
@@ -33,38 +69,42 @@ export function PaymentTable({
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
-  const [clientDetails, setClientDetails] = useState<{ advisor: any; broker: any } | null>(null)
+  const [clientDetails, setClientDetails] = useState<{
+    advisor: string
+    broker: string
+  } | null>(null)
   const [isLoadingClient, setIsLoadingClient] = useState(false)
 
   useEffect(() => {
     if (selectedPolicy) {
       setDialogOpen(true)
 
-      // Find the selected payment to get the accountId
-      const selectedPaymentData = payments.find((p) => p.policyId === selectedPolicy)
+      const selectedPaymentData = payments.find(
+        (p) => p.policyId === selectedPolicy
+      )
 
       if (selectedPaymentData?.accountId) {
         setIsLoadingClient(true)
         getClients({ id: selectedPaymentData.accountId })
           .then((response) => {
+            console.log('Responseeee', response.data)
             if (response.data && response.data.length > 0) {
               const client = response.data[0]
-              const advisor = client.users.find((user) => user.role === "ADVISOR") || null
-              const broker = client.users.find((user) => user.role === "BROKER") || null
+              const advisor =
+                client.users.find((user) => user.role === 'ADVISOR') || null
+              const broker =
+                client.users.find((user) => user.role === 'BROKER') || null
 
-              setClientDetails({ advisor, broker })
-            } else if (response.data && response.data.account) {
-              const account = response.data.account
-              const advisor = account.users.find((user) => user.role === "ADVISOR") || null
-              const broker = account.users.find((user) => user.role === "BROKER") || null
-
-              setClientDetails({ advisor, broker })
+              setClientDetails({
+                advisor: advisor?.name ?? '',
+                broker: broker?.name ?? '',
+              })
             } else {
               setClientDetails(null)
             }
           })
           .catch((error) => {
-            console.error("Error fetching client details:", error)
+            console.error('Error fetching client details:', error)
             setClientDetails(null)
           })
           .finally(() => {
@@ -80,7 +120,7 @@ export function PaymentTable({
       onSelectPolicy(null)
     }
   }
-  console.log("Payments:", payments)
+  console.log('Payments:', payments)
 
   const handleEditPayment = (payment: Payment, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -89,39 +129,39 @@ export function PaymentTable({
   }
 
   const handlePaymentUpdated = (updatedPayment: Payment) => {
-    console.log("Payment updated:", updatedPayment)
+    console.log('Payment updated:', updatedPayment)
   }
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
     }).format(value)
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return ""
+    if (!dateString) return ''
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: ptBR })
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR })
     } catch {
-      return "Data inválida"
+      return 'Data inválida'
     }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "PAID":
+      case 'PAID':
         return (
           <Badge className="bg-green-600/20 text-green-500 hover:bg-green-600/30 border-green-800/30">
             <CheckCircle className="h-3 w-3 mr-1" /> Pago
           </Badge>
         )
-      case "PENDING":
+      case 'PENDING':
         return (
           <Badge className="bg-yellow-600/20 text-yellow-500 hover:bg-yellow-600/30 border-yellow-800/30">
             <Clock className="h-3 w-3 mr-1" /> Pendente
           </Badge>
         )
-      case "DEFEATED":
+      case 'DEFEATED':
         return (
           <Badge className="bg-red-600/20 text-red-500 hover:bg-red-600/30 border-red-800/30">
             <AlertTriangle className="h-3 w-3 mr-1" /> Vencido
@@ -130,7 +170,7 @@ export function PaymentTable({
       default:
         return (
           <Badge className="bg-zinc-600/20 text-zinc-400 hover:bg-zinc-600/30 border-zinc-700/30">
-            {status || "Desconhecido"}
+            {status || 'Desconhecido'}
           </Badge>
         )
     }
@@ -145,12 +185,12 @@ export function PaymentTable({
           end: endOfMonth(selectedMonth),
         })
       }),
-    [payments, selectedMonth],
+    [payments, selectedMonth]
   )
 
   const paymentsByPolicy = useMemo(
     () => payments.filter((p) => p.policyId === selectedPolicy),
-    [payments, selectedPolicy],
+    [payments, selectedPolicy]
   )
 
   return (
@@ -166,7 +206,7 @@ export function PaymentTable({
         </Button>
 
         <span className="text-base font-semibold text-white">
-          {format(selectedMonth, "MMMM yyyy", { locale: ptBR })}
+          {format(selectedMonth, 'MMMM yyyy', { locale: ptBR })}
         </span>
 
         <Button
@@ -199,14 +239,27 @@ export function PaymentTable({
               className="cursor-pointer border-zinc-800 hover:bg-zinc-800/50"
               onClick={() => onSelectPolicy(payment.policyId)}
             >
-              <TableCell className="text-white font-medium">{payment.policyNumber}</TableCell>
-              <TableCell className="text-zinc-300">{payment.accountName}</TableCell>
-              <TableCell className="text-zinc-300">{payment.productName}</TableCell>
+              <TableCell className="text-white font-medium">
+                {payment.policyNumber}
+              </TableCell>
+              <TableCell className="text-zinc-300">
+                {payment.accountName}
+              </TableCell>
+              <TableCell className="text-zinc-300">
+                {payment.productName}
+              </TableCell>
               <TableCell className="text-zinc-300">{payment.plot}</TableCell>
-              <TableCell className="text-zinc-300">{formatCurrency(payment.price)}</TableCell>
-              <TableCell className="text-zinc-300">{formatDate(payment.dueDate)}</TableCell>
+              <TableCell className="text-zinc-300">
+                {formatCurrency(payment.price)}
+              </TableCell>
+              <TableCell className="text-zinc-300">
+                {formatDate(payment.dueDate)}
+              </TableCell>
               <TableCell>{getStatusBadge(payment.paymentStatus)}</TableCell>
-              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+              <TableCell
+                className="text-right"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Button
                   variant="outline"
                   size="icon"
@@ -227,24 +280,27 @@ export function PaymentTable({
                       <span className="sr-only">Abrir menu</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-zinc-800 border-zinc-700 text-white">
+                  <DropdownMenuContent
+                    align="end"
+                    className="bg-zinc-800 border-zinc-700 text-white"
+                  >
                     <DropdownMenuItem
                       className="hover:bg-zinc-700 cursor-pointer"
-                      onClick={() => onUpdateStatus(payment, "PAID")}
+                      onClick={() => onUpdateStatus(payment, 'PAID')}
                     >
                       <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
                       Marcar como pago
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="hover:bg-zinc-700 cursor-pointer"
-                      onClick={() => onUpdateStatus(payment, "PENDING")}
+                      onClick={() => onUpdateStatus(payment, 'PENDING')}
                     >
                       <Clock className="h-4 w-4 mr-2 text-yellow-500" />
                       Marcar como pendente
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="hover:bg-zinc-700 cursor-pointer"
-                      onClick={() => onUpdateStatus(payment, "DEFEATED")}
+                      onClick={() => onUpdateStatus(payment, 'DEFEATED')}
                     >
                       <AlertTriangle className="h-4 w-4 mr-2 text-red-500" />
                       Marcar como vencido
@@ -285,15 +341,21 @@ export function PaymentTable({
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-zinc-400">Número da Apólice</p>
-                      <p className="font-medium">{paymentsByPolicy[0].policyNumber}</p>
+                      <p className="font-medium">
+                        {paymentsByPolicy[0].policyNumber}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">Cliente</p>
-                      <p className="font-medium">{paymentsByPolicy[0].accountName}</p>
+                      <p className="font-medium">
+                        {paymentsByPolicy[0].accountName}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">Produto</p>
-                      <p className="font-medium">{paymentsByPolicy[0].productName}</p>
+                      <p className="font-medium">
+                        {paymentsByPolicy[0].productName}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-zinc-400">Total de Parcelas</p>
@@ -313,20 +375,28 @@ export function PaymentTable({
                           <p className="text-sm text-zinc-400">Assessor</p>
                           {clientDetails.advisor ? (
                             <div>
-                              <p className="font-medium">{clientDetails.advisor.name}</p>
+                              <p className="font-medium">
+                                {clientDetails.advisor}
+                              </p>
                             </div>
                           ) : (
-                            <p className="text-zinc-400 italic">Não atribuído</p>
+                            <p className="text-zinc-400 italic">
+                              Não atribuído
+                            </p>
                           )}
                         </div>
                         <div>
                           <p className="text-sm text-zinc-400">Corretor</p>
                           {clientDetails.broker ? (
                             <div>
-                              <p className="font-medium">{clientDetails.broker.name}</p>
+                              <p className="font-medium">
+                                {clientDetails.broker}
+                              </p>
                             </div>
                           ) : (
-                            <p className="text-zinc-400 italic">Não atribuído</p>
+                            <p className="text-zinc-400 italic">
+                              Não atribuído
+                            </p>
                           )}
                         </div>
                       </div>
@@ -343,12 +413,19 @@ export function PaymentTable({
             <TabsContent value="payments">
               <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-2">
                 {paymentsByPolicy.map((p) => (
-                  <div key={p.id} className="flex justify-between border-b border-zinc-700 py-2">
+                  <div
+                    key={p.id}
+                    className="flex justify-between border-b border-zinc-700 py-2"
+                  >
                     <div>
                       <p className="font-medium">{p.plot}</p>
-                      <p className="text-sm text-zinc-400">vencimento: {formatDate(p.dueDate)}</p>
                       <p className="text-sm text-zinc-400">
-                        {p.paymentStatus === "PAID" && p.paymentDate ? `pagamento: ${formatDate(p.paymentDate)}` : ""}
+                        vencimento: {formatDate(p.dueDate)}
+                      </p>
+                      <p className="text-sm text-zinc-400">
+                        {p.paymentStatus === 'PAID' && p.paymentDate
+                          ? `pagamento: ${formatDate(p.paymentDate)}`
+                          : ''}
                       </p>
                     </div>
                     <div className="text-right">
@@ -363,24 +440,27 @@ export function PaymentTable({
                               {getStatusBadge(p.paymentStatus)}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-zinc-800 border-zinc-700 text-white">
+                          <DropdownMenuContent
+                            align="end"
+                            className="bg-zinc-800 border-zinc-700 text-white"
+                          >
                             <DropdownMenuItem
                               className="hover:bg-zinc-700 cursor-pointer"
-                              onClick={() => onUpdateStatus(p, "PAID")}
+                              onClick={() => onUpdateStatus(p, 'PAID')}
                             >
                               <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
                               Marcar como pago
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="hover:bg-zinc-700 cursor-pointer"
-                              onClick={() => onUpdateStatus(p, "PENDING")}
+                              onClick={() => onUpdateStatus(p, 'PENDING')}
                             >
                               <Clock className="h-4 w-4 mr-2 text-yellow-500" />
                               Marcar como pendente
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="hover:bg-zinc-700 cursor-pointer"
-                              onClick={() => onUpdateStatus(p, "DEFEATED")}
+                              onClick={() => onUpdateStatus(p, 'DEFEATED')}
                             >
                               <AlertTriangle className="h-4 w-4 mr-2 text-red-500" />
                               Marcar como vencido

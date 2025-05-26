@@ -84,10 +84,6 @@ export default function DashboardProducts({ initialProducts, clientToken }: Dash
 
   const filteredProducts = products.filter((product) => product.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString()
-  }
-
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
@@ -133,7 +129,6 @@ export default function DashboardProducts({ initialProducts, clientToken }: Dash
                 <TableHeader>
                   <TableRow className="border-zinc-800 hover:bg-zinc-800/50">
                     <TableHead className="text-zinc-400">Nome</TableHead>
-                    <TableHead className="text-zinc-400">Atualizado em</TableHead>
                     <TableHead className="text-zinc-400 text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -141,7 +136,6 @@ export default function DashboardProducts({ initialProducts, clientToken }: Dash
                   {filteredProducts.map((product) => (
                     <TableRow key={product.id} className="border-zinc-800 hover:bg-zinc-800/50">
                       <TableCell className="text-white font-medium">{product.name}</TableCell>
-                      <TableCell className="text-zinc-300">{formatDate(product.updatedAt)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button

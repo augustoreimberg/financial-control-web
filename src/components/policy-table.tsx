@@ -1,11 +1,18 @@
-"use client"
+'use client'
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Pencil, Trash2 } from "lucide-react"
-import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
-import type { Policy } from "@/actions/create-policy"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Pencil, Trash2 } from 'lucide-react'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import type { Policy } from '@/actions/create-policy'
 
 interface PolicyTableProps {
   policies: Policy[]
@@ -15,39 +22,26 @@ interface PolicyTableProps {
 
 export function PolicyTable({ policies, onEdit, onDelete }: PolicyTableProps) {
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
     }).format(value)
   }
 
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: ptBR })
+      return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR })
     } catch (error) {
-      return "Data inválida"
-    }
-  }
-
-  const getPaymentMethodLabel = (method: string) => {
-    switch (method) {
-      case "CREDIT":
-        return "Cartão de Crédito"
-      case "DEBIT":
-        return "Débito em Conta"
-      case "BILL":
-        return "Boleto"
-      default:
-        return method
+      return error instanceof Error ? error.message : 'Data inválida'
     }
   }
 
   const getFrequencyLabel = (frequency: string) => {
     switch (frequency) {
-      case "MONTHLY":
-        return "Mensal"
-      case "ANNUAL":
-        return "Anual"
+      case 'MONTHLY':
+        return 'Mensal'
+      case 'ANNUAL':
+        return 'Anual'
       default:
         return frequency
     }
@@ -70,18 +64,29 @@ export function PolicyTable({ policies, onEdit, onDelete }: PolicyTableProps) {
         </TableHeader>
         <TableBody>
           {policies.map((policy) => (
-            <TableRow key={policy.id} className="border-zinc-800 hover:bg-zinc-800/50">
-              <TableCell className="text-zinc-300 font-mono text-xs">{policy.policyNumber}</TableCell>
-              <TableCell className="text-white font-medium">{policy.name}</TableCell>
-              <TableCell className="text-zinc-300">{policy.client?.name || "—"}</TableCell>
-              <TableCell className="text-zinc-300">{policy.product?.name || "—"}</TableCell>
-              <TableCell className="text-zinc-300">{getFrequencyLabel(policy.frequency)}</TableCell>
-              <TableCell className="text-zinc-300">
-                {policy.frequency === "MONTHLY"
-                  ? formatCurrency(policy.monthlyPremium)
-                  : formatCurrency(policy.annualPremium)}
+            <TableRow
+              key={policy.id}
+              className="border-zinc-800 hover:bg-zinc-800/50"
+            >
+              <TableCell className="text-zinc-300 font-mono text-xs">
+                {policy.policyNumber}
               </TableCell>
-              <TableCell className="text-zinc-300">{formatDate(policy.dueDate)}</TableCell>
+              <TableCell className="text-white font-medium">
+                {policy.name}
+              </TableCell>
+              <TableCell className="text-zinc-300">—</TableCell>
+              <TableCell className="text-zinc-300">—</TableCell>
+              <TableCell className="text-zinc-300">
+                {getFrequencyLabel(policy.frequency)}
+              </TableCell>
+              <TableCell className="text-zinc-300">
+                {policy.frequency === 'MONTHLY'
+                  ? formatCurrency(policy.monthlyPremium)
+                  : formatCurrency(policy.annualPremium || 0)}
+              </TableCell>
+              <TableCell className="text-zinc-300">
+                {formatDate(policy.dueDate)}
+              </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button

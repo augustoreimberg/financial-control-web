@@ -87,10 +87,6 @@ export default function DashboardClients({
     c.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString()
-  }
-
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">

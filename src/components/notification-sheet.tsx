@@ -19,7 +19,7 @@ interface NotificationSheetProps {
   onSelectPolicy?: (policyId: string) => void
 }
 
-export function NotificationSheet({ count = 0, onSelectPolicy }: NotificationSheetProps) {
+export function NotificationSheet({ onSelectPolicy }: NotificationSheetProps) {
   const [overduePayments, setOverduePayments] = useState<Payment[]>([])
   const [upcomingPayments, setUpcomingPayments] = useState<Payment[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -89,7 +89,7 @@ export function NotificationSheet({ count = 0, onSelectPolicy }: NotificationShe
     try {
       return format(new Date(dateString), "dd/MM/yyyy", { locale: ptBR })
     } catch (error) {
-      return "Data inválida"
+      return error instanceof Error ? error.message : "Data inválida"
     }
   }
 

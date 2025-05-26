@@ -23,7 +23,7 @@ interface DeletePolicyDialogProps {
   clientToken?: string
 }
 
-export function DeletePolicyDialog({ open, onOpenChange, policy, onSuccess, clientToken }: DeletePolicyDialogProps) {
+export function DeletePolicyDialog({ open, onOpenChange, policy, onSuccess }: DeletePolicyDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

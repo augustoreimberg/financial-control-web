@@ -23,7 +23,6 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { cn } from "@/lib/utils"
 import { createPolicy } from "@/actions/create-policy"
-import { updatePolicy } from "@/actions/update-payment-status"
 import type { Policy } from "@/actions/create-policy"
 import type { Client } from "@/actions/get-clients"
 import type { Product } from "@/actions/get-product"
@@ -136,12 +135,12 @@ export function PolicyDialog({
       let result
 
       if (isEditing && policy?.id) {
-        result = await updatePolicy(formData, clientToken)
+        console.log("is editing")
       } else {
         result = await createPolicy(formData, clientToken)
       }
 
-      if (result.error) {
+      if (result?.error) {
         setError(result.error)
       } else {
         onOpenChange(false)

@@ -33,7 +33,7 @@ export type GetPaymentsParams = {
     status?: "PAID" | "PENDING" | "DEFEATED";
 };
 
-const API_BASE_URL = process.env.API_URL || "http://localhost:3001";
+const API_BASE_URL = process.env.API_URL;
 
 export async function getPayments(
     params: GetPaymentsParams = {},

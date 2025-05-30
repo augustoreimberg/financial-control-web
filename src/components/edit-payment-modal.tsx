@@ -194,7 +194,6 @@ export function EditDueDateModal({
                                 </PopoverContent>
                             </Popover>
                         </div>
-
                     </div>
 
                     {showConfirmation ? (

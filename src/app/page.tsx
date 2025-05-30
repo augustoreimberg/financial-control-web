@@ -1,19 +1,8 @@
+"use client";
+
 import LoginForm from "@/components/form/login-form";
 
 export default function Home() {
-    const handleSelectPolicy = async (policyId: string) => {
-        setSelectedPolicy(policyId);
-        try {
-            const result = await getPayments({}, clientToken);
-            if (result.error) {
-                throw new Error(result.error);
-            }
-            setPayments(result.data || []);
-        } catch (error) {
-            console.error("Erro ao buscar pagamentos da apólice:", error);
-        }
-    };
-
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-md">

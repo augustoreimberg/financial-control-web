@@ -54,7 +54,8 @@ export async function getPayments(
             {
                 headers: {
                     Authorization: `Bearer ${
-                        clientToken || cookies().get("client_token")?.value
+                        clientToken ||
+                        (await cookies()).get("client_token")?.value
                     }`,
                 },
             }
@@ -65,9 +66,9 @@ export async function getPayments(
         }
 
         const responseData = await response.json();
-        return { 
-            data: responseData.payments || [], 
-            error: null 
+        return {
+            data: responseData.payments || [],
+            error: null,
         };
     } catch (error) {
         console.error("Erro ao buscar pagamentos:", error);

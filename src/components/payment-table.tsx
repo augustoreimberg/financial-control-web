@@ -60,18 +60,6 @@ interface User {
     updatedAt: string;
 }
 
-interface Client {
-    id: string;
-    name: string;
-    email: string;
-    sinacorCode: string;
-    accountNumber: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string | null;
-    users: User[];
-}
-
 interface PaymentTableProps {
     payments: Payment[];
     onUpdateStatus: (
@@ -158,6 +146,10 @@ export function PaymentTable({
                         }
                     })
                     .catch((error) => {
+                        console.error(
+                            "Erro ao buscar detalhes do cliente:",
+                            error
+                        );
                         setClientDetails({
                             advisor: "Não atribuído",
                             broker: "Não atribuído",
